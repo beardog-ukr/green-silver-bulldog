@@ -1,4 +1,7 @@
 #include "MainGameScene.h"
+
+#include "TiledMapKeeper.h"
+
 #include "SimpleAudioEngine.h"
 
 USING_NS_CC;
@@ -23,20 +26,14 @@ bool MainGameScene::init()
   auto visibleSize = Director::getInstance()->getVisibleSize();
   Vec2 origin      = Director::getInstance()->getVisibleOrigin();
 
-  // add "HelloWorld" splash screen"
-  auto sprite = Sprite::create("HelloWorld.png");
+  tiledMapKeeper = new TiledMapKeeper();
+  Node *nd = tiledMapKeeper->prepareNode();
 
-  if (sprite == nullptr)
-  {
-    log("failed to load 'HelloWorld.png'");
+  if (nd != nullptr) {
+    addChild(nd);
   }
-  else
-  {
-    // position the sprite on the center of the screen
-    sprite->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
 
-    // add the sprite as a child to this layer
-    this->addChild(sprite, 0);
-  }
+  tiledMapKeeper->bringMapPointToCenter(16, 10);
+
   return true;
 }

@@ -50,10 +50,12 @@ endif()
 list(APPEND GAME_SOURCE
      Classes/AppDelegate.cpp
      Classes/MainGameScene.cpp
+     Classes/TiledMapKeeper.cpp
      )
 list(APPEND GAME_HEADER
      Classes/AppDelegate.h
      Classes/MainGameScene.h
+     Classes/TiledMapKeeper.h
      )
 
 if(ANDROID)
