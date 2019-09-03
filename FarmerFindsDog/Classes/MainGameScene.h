@@ -1,10 +1,10 @@
-
 #pragma once
 
 #include "cocos2d.h"
 using namespace cocos2d;
 
 class TiledMapKeeper;
+class FarmerKeeper;
 
 class MainGameScene : public Scene {
 public:
@@ -19,4 +19,10 @@ public:
 protected:
 
   TiledMapKeeper *tiledMapKeeper;
+  FarmerKeeper *farmerKeeper;
+
+  int currentFarmerX;
+  int currentFarmerY;
+
+  bool initFarmerKeeper();
 };

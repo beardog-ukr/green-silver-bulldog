@@ -49,11 +49,13 @@ endif()
 # add cross-platforms source files and header files
 list(APPEND GAME_SOURCE
      Classes/AppDelegate.cpp
+     Classes/FarmerKeeper.cpp
      Classes/MainGameScene.cpp
      Classes/TiledMapKeeper.cpp
      )
 list(APPEND GAME_HEADER
      Classes/AppDelegate.h
+     Classes/FarmerKeeper.h
      Classes/MainGameScene.h
      Classes/TiledMapKeeper.h
      )

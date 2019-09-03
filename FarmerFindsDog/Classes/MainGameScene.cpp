@@ -1,5 +1,6 @@
 #include "MainGameScene.h"
 
+#include "FarmerKeeper.h"
 #include "TiledMapKeeper.h"
 
 #include "SimpleAudioEngine.h"
@@ -34,6 +35,25 @@ bool MainGameScene::init()
   }
 
   tiledMapKeeper->bringMapPointToCenter(16, 10);
+
+  if (!initFarmerKeeper()) {
+    return false;
+  }
+
+
+  return true;
+}
+
+bool MainGameScene::initFarmerKeeper() {
+  // ShipKeeper
+  farmerKeeper = new FarmerKeeper();
+  Node *farmerNode = farmerKeeper->prepareNode();
+  addChild(farmerNode);
+
+  currentFarmerX = 15;
+  currentFarmerY = 11;
+  const Vec2 tmpp = tiledMapKeeper->getPositionForMapItem(currentFarmerX, currentFarmerY);
+  farmerKeeper->doStraightMove(tmpp);
 
   return true;
 }
