@@ -1,9 +1,5 @@
 #include "FarmerKeeper.h"
 
-// #include <cmath>   // fmod, sin, cos
-// #include <math.h>
-// #include <sstream> // ostringstream
-
 const float ITEM_MOVE_TIME      = 1.0f;
 const float ITEM_ANIMATION_TIME = 0.1f; //
 
@@ -72,8 +68,7 @@ Animation * FarmerKeeper::prepareAnimation(const MoveDirection moveDirection) co
 
 // =============================================================================
 
-Node * FarmerKeeper::prepareNode()
-{
+Node * FarmerKeeper::prepareNode() {
   if (workNode != nullptr) {
     return workNode;
   }
@@ -92,11 +87,6 @@ void FarmerKeeper::doMove(const Vec2 newPos, const MoveDirection moveDirection,
                           CallFunc *notifyScene) {
   log("%s: move requested to %f:%f", __func__, newPos.x, newPos.y);
 
-  // if (isMoving()) {
-  //   log("%s: move cancelled because it's moving", __func__);
-  //   return;
-  // }
-
   FiniteTimeAction *actionMove = MoveTo::create(ITEM_MOVE_TIME, newPos);
   actionMove->setTag(IAT_MOVE);
 
@@ -112,17 +102,6 @@ void FarmerKeeper::doMove(const Vec2 newPos, const MoveDirection moveDirection,
 
 // =============================================================================
 
-bool FarmerKeeper::isMoving() const {
-  if (workNode->getNumberOfRunningActions() > 0) {
-    return true;
-  }
-
-  // else
-  return false;
-}
-
-// =============================================================================
-
 void FarmerKeeper::doSetIdle() {
   workNode->setSpriteFrame(defPosFilename);
 
@@ -134,52 +113,5 @@ void FarmerKeeper::doSetIdle() {
 void FarmerKeeper::doStraightMove(const Vec2 newPos) {
   workNode->setPosition(newPos);
 }
-
-// =============================================================================
-
-// void Spaceship::moveSpaceshipForward(Node *spaceshipNode)
-// {
-//   log("%s: moving ss forward", __func__);
-//
-//   Point nextMovePoint = calculateNextMovePoint(spaceshipNode);
-//
-//   // Rotation gets stopped if spaceship starts moving forward; it feels more
-//   // naturally
-//   spaceshipNode->stopActionByTag(IAC_SPACESHIP_ROTATION);
-//
-//   spaceshipNode->stopActionByTag(IAC_SPACESHIP_MOVING);
-//
-//   FiniteTimeAction *actionMove = MoveBy::create(SS_MOVE_TIME, nextMovePoint);
-//   actionMove->setTag(IAC_SPACESHIP_MOVING);
-//   spaceshipNode->runAction(actionMove);
-//
-//   for (const auto& ssNodeChild : spaceshipNode->getChildren())
-//   {
-//     if (ssNodeChild->getTag() != SS_NODE_TAG_ENGINE_TRACE)
-//     {
-//       continue;
-//     }
-//
-//     ssNodeChild->setVisible(true);
-//
-//     auto actionFadeIn  = FadeIn::create(SS_MOVE_TIME / 2);
-//     auto actionFadeOut = FadeOut::create(SS_MOVE_TIME / 2);
-//
-//     // auto callbackFadeIn = CallFunc::create([]() {
-//     //   log("faded in");
-//     // });
-//     auto callbackFadeOut = CallFunc::create([ssNodeChild]() {
-//       log("faded out!");
-//       ssNodeChild->setVisible(false);
-//     });
-//
-//     ssNodeChild->stopActionByTag(IAC_SPACESHIP_MOVING);
-//
-//     auto seq = Sequence::create(actionFadeIn, // callbackFadeIn,
-//                                 actionFadeOut, callbackFadeOut, nullptr);
-//     seq->setTag(IAC_SPACESHIP_MOVING);
-//     ssNodeChild->runAction(seq);
-//   }
-// }
 
 // =============================================================================

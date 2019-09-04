@@ -26,9 +26,11 @@ protected:
   int currentFarmerX;
   int currentFarmerY;
 
+  MoveDirection candidateMoveDirection;
   int candidateFarmerX;
   int candidateFarmerY;
 
+  bool farmerIsMoving;
 
   void initKeyboardProcessing();
 

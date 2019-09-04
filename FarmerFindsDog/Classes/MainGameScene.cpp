@@ -15,11 +15,10 @@ Scene * MainGameScene::createScene()
 }
 
 // =================================================================================================
-// on "init" you need to initialize your instance
+
 bool MainGameScene::init()
 {
-  // super init first
-  if (!Scene::init())
+  if (!Scene::init()) // super init first
   {
     return false;
   }
@@ -33,6 +32,9 @@ bool MainGameScene::init()
   }
 
   initKeyboardProcessing();
+
+  farmerIsMoving         = false;
+  candidateMoveDirection = MOVE_DIRECTION_NO_MOVE;
 
   return true;
 }
@@ -83,10 +85,10 @@ void MainGameScene::initKeyboardProcessing() {
 // =============================================================================
 
 void MainGameScene::moveFarmer(const MoveDirection moveDirection) {
-  // if (shipItem->isMoving()) {
-  //   nextRequestedShipMove = moveDirection;
-  //   return;
-  // }
+  if (farmerIsMoving) {
+    candidateMoveDirection = moveDirection;
+    return;
+  }
 
   // else
   moveFarmerForced(moveDirection);
@@ -115,6 +117,9 @@ void MainGameScene::moveFarmerForced(const MoveDirection moveDirection) {
   // moveDirection, newTileY);
   //   return;
   // }
+
+  farmerIsMoving         = true;
+  candidateMoveDirection = moveDirection;
 
   candidateFarmerX = newTileX;
   candidateFarmerY = newTileY;
@@ -150,6 +155,9 @@ void MainGameScene::onKeyPressedScene(EventKeyboard::KeyCode keyCode,  Event *ev
     moveFarmer(MOVE_DIRECTION_RIGHT);
     break;
 
+  case EventKeyboard::KeyCode::KEY_SPACE:
+    candidateMoveDirection = MOVE_DIRECTION_NO_MOVE;
+    break;
 
   case EventKeyboard::KeyCode::KEY_X:
     log("%s: Need to get out.", __func__);
@@ -168,6 +176,7 @@ void MainGameScene::onKeyPressedScene(EventKeyboard::KeyCode keyCode,  Event *ev
 void MainGameScene::processFarmerMovementFinish() {
   log("%s: here", __func__);
 
+  farmerIsMoving = false;
   currentFarmerX = candidateFarmerX;
   currentFarmerY = candidateFarmerY;
 
@@ -178,10 +187,10 @@ void MainGameScene::processFarmerMovementFinish() {
     farmerKeeper->doStraightMove(nPos);
   }
 
-  farmerKeeper->doSetIdle();
-
-  // if (MOVE_SHIP_NO_MOVE != nextRequestedShipMove) {
-  //   moveShipForced(nextRequestedShipMove);
-  //   nextRequestedShipMove = MOVE_SHIP_NO_MOVE;
-  // }
+  if (candidateMoveDirection == MOVE_DIRECTION_NO_MOVE) {
+    farmerKeeper->doSetIdle();
+  }
+  else {
+    moveFarmer(candidateMoveDirection);
+  }
 }

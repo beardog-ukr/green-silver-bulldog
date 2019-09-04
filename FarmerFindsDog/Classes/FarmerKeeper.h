@@ -20,8 +20,6 @@ public:
 
   void  doSetIdle();
 
-  bool  isMoving() const;
-
 protected:
 
   Sprite *workNode;
