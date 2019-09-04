@@ -97,9 +97,8 @@ void MainGameScene::moveFarmer(const MoveDirection moveDirection) {
 void MainGameScene::moveFarmerForced(const MoveDirection moveDirection) {
   // const Size mapSize = tiledMapNode->getMapSize();
 
-  const int   diffX[]  = { 0, 0, -1, 1 }; // order is up, down, left, right
-  const int   diffY[]  = { 1, -1, 0, 0 };
-  const float angles[] = { 0.0, 180.0, 270.0, 90.0 };
+  const int diffX[] = { 0, 0, -1, 1 }; // order is up, down, left, right
+  const int diffY[] = { 1, -1, 0, 0 };
 
   const int newTileX = currentFarmerX + diffX[moveDirection];
 
@@ -125,7 +124,7 @@ void MainGameScene::moveFarmerForced(const MoveDirection moveDirection) {
   });
 
   const Vec2 newPos = tiledMapKeeper->getPositionForMapItem(newTileX, newTileY);
-  farmerKeeper->doMove(newPos, angles[moveDirection], cf);
+  farmerKeeper->doMove(newPos, moveDirection, cf);
 }
 
 // =============================================================================
@@ -178,6 +177,8 @@ void MainGameScene::processFarmerMovementFinish() {
     const Vec2 nPos = tiledMapKeeper->getPositionForMapItem(currentFarmerX, currentFarmerY);
     farmerKeeper->doStraightMove(nPos);
   }
+
+  farmerKeeper->doSetIdle();
 
   // if (MOVE_SHIP_NO_MOVE != nextRequestedShipMove) {
   //   moveShipForced(nextRequestedShipMove);

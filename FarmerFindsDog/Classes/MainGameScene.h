@@ -3,8 +3,10 @@
 #include "cocos2d.h"
 using namespace cocos2d;
 
+#include "MoveDirection.h"
 class TiledMapKeeper;
 class FarmerKeeper;
+
 
 class MainGameScene : public Scene {
 public:
@@ -29,15 +31,6 @@ protected:
 
 
   void initKeyboardProcessing();
-
-  //
-  enum MoveDirection {
-    MOVE_DIRECTION_UP = 0,
-    MOVE_DIRECTION_DOWN,
-    MOVE_DIRECTION_LEFT,
-    MOVE_DIRECTION_RIGHT,
-    MOVE_DIRECTION_NO_MOVE = 99
-  };
 
   void moveFarmer(const MoveDirection moveDirection);
 

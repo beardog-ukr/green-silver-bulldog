@@ -4,8 +4,14 @@
 // #include <math.h>
 // #include <sstream> // ostringstream
 
-const float SI_MOVE_TIME     = 1.0f;
-const float SI_ROTATION_TIME = 0.3f; //
+const float ITEM_MOVE_TIME      = 1.0f;
+const float ITEM_ANIMATION_TIME = 0.1f; //
+
+// Item action tags
+const int IAT_ANIMATION = 10;           //
+const int IAT_MOVE      = 20;           //
+
+const std::string defPosFilename = "f-farmer-2.png";
 
 // =============================================================================
 // =============================================================================
@@ -24,58 +30,66 @@ FarmerKeeper::~FarmerKeeper() {
 
 // =============================================================================
 
+Animation * FarmerKeeper::prepareAnimation(const MoveDirection moveDirection) const {
+  char templateLeft[]  = "left-%d.png";
+  char templateRight[] = "right-%d.png";
+  char templateUp[]    = "b-farmer-%d.png";
+  char templateDown[]  = "f-farmer-%d.png";
+
+  char *templateArr[] = { templateUp, templateDown, templateLeft, templateRight, nullptr };
+
+  char *templateStr = templateArr[moveDirection];
+
+  if (templateStr == nullptr) {
+    log("%s: unexpected", __func__);
+    return nullptr;
+  }
+
+  SpriteFrameCache *scache = SpriteFrameCache::getInstance();
+
+  Animation *resultAnimation = Animation::create();
+
+  resultAnimation->setDelayPerUnit(0.1);
+
+  char tmps[256];
+
+  for (int i = 1; i <= 3; i++) {
+    sprintf(tmps, templateStr, i);
+    log("%s: adding %s", __func__, tmps);
+
+    SpriteFrame *sf = scache->getSpriteFrameByName(tmps);
+
+    if (sf != nullptr) {
+      resultAnimation->addSpriteFrame(sf);
+    }
+    else {
+      log("%s: failed  to load sprite frame '%s'", __func__, tmps);
+    }
+  }
+
+  return resultAnimation;
+}
+
+// =============================================================================
+
 Node * FarmerKeeper::prepareNode()
 {
   if (workNode != nullptr) {
     return workNode;
   }
 
-  const char spaceshipFilename[] = "farmer/left-2.png";
+  SpriteFrameCache::getInstance()->addSpriteFramesWithFile("farmer/farmer.plist");
 
-  std::ostringstream errMsgStream;
-  bool errorReceived = false;
 
-  Sprite *spaceshipSprite = nullptr;
-  Node   *ssNode          = nullptr;
+  workNode = Sprite::createWithSpriteFrameName(defPosFilename);
 
-  do
-  {
-    spaceshipSprite = Sprite::create(spaceshipFilename);
-
-    if (spaceshipSprite == nullptr)
-    {
-      errMsgStream << "Failed to load spaceship file " << spaceshipFilename;
-      errorReceived = true;
-      break;
-    }
-
-    ssNode = Node::create();
-
-    if (ssNode == nullptr)
-    {
-      errMsgStream << "Failed to allocate node ";
-      errorReceived = true;
-      break;
-    }
-  } while (false);
-
-  if (errorReceived)
-  {
-    log("%s: failed, error message: %s", __func__, errMsgStream.str().c_str());
-    free(spaceshipSprite);
-    free(ssNode);
-    return nullptr;
-  }
-
-  ssNode->addChild(spaceshipSprite);
-
-  workNode = ssNode;
-  return ssNode;
+  return workNode;
 }
 
 // =============================================================================
 
-void FarmerKeeper::doMove(const Vec2 newPos, const float newRotationAngle, CallFunc *notifyScene) {
+void FarmerKeeper::doMove(const Vec2 newPos, const MoveDirection moveDirection,
+                          CallFunc *notifyScene) {
   log("%s: move requested to %f:%f", __func__, newPos.x, newPos.y);
 
   // if (isMoving()) {
@@ -83,28 +97,17 @@ void FarmerKeeper::doMove(const Vec2 newPos, const float newRotationAngle, CallF
   //   return;
   // }
 
-  FiniteTimeAction *actionMove = MoveTo::create(SI_MOVE_TIME, newPos);
+  FiniteTimeAction *actionMove = MoveTo::create(ITEM_MOVE_TIME, newPos);
+  actionMove->setTag(IAT_MOVE);
 
-  // actionMove->setTag(IAC_SPACESHIP_MOVING);
-  const float currentRotation = workNode->getRotation();
-  log("%s: current rotation %f, requested %f", __func__, currentRotation, newRotationAngle);
-
-  Sequence *seq = nullptr;
-
-  if (currentRotation == newRotationAngle) {
-    // no rotation requested, only move
-    seq = Sequence::create(actionMove, notifyScene, nullptr);
-  }
-  else {
-    actionMove->setDuration(SI_MOVE_TIME - SI_ROTATION_TIME);
-
-    log("%s: action rotation to %f", __func__, newRotationAngle);
-    auto actionRotation = cocos2d::RotateTo::create(SI_ROTATION_TIME, newRotationAngle);
-    seq = Sequence::create(actionRotation, actionMove,
-                           notifyScene, nullptr);
-  }
-
+  Sequence *seq = Sequence::create(actionMove, notifyScene, nullptr);
   workNode->runAction(seq);
+
+
+  Animation *animation = prepareAnimation(moveDirection);
+  Action    *aaction   = RepeatForever::create(Animate::create(animation));
+  aaction->setTag(IAT_ANIMATION);
+  workNode->runAction(aaction);
 }
 
 // =============================================================================
@@ -116,6 +119,14 @@ bool FarmerKeeper::isMoving() const {
 
   // else
   return false;
+}
+
+// =============================================================================
+
+void FarmerKeeper::doSetIdle() {
+  workNode->setSpriteFrame(defPosFilename);
+
+  workNode->stopAllActionsByTag(IAT_ANIMATION);
 }
 
 // =============================================================================

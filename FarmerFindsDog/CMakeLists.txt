@@ -57,6 +57,7 @@ list(APPEND GAME_HEADER
      Classes/AppDelegate.h
      Classes/FarmerKeeper.h
      Classes/MainGameScene.h
+     Classes/MoveDirection.h
      Classes/TiledMapKeeper.h
      )
 
