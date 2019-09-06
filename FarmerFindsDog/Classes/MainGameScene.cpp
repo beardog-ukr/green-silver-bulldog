@@ -107,6 +107,8 @@ void MainGameScene::moveFarmerForced(const MoveDirection moveDirection) {
   // if ((newTileX < 0) || (newTileX >= mapSize.width)) {
   //   log("%s: move to %d cancelled because of X (becomes %d)", __func__,
   // moveDirection, newTileX);
+  //   candidateMoveDirection = MOVE_DIRECTION_NO_MOVE;
+  //   farmerIsMoving         = false;
   //   return;
   // }
 
@@ -117,6 +119,12 @@ void MainGameScene::moveFarmerForced(const MoveDirection moveDirection) {
   // moveDirection, newTileY);
   //   return;
   // }
+
+  if (tiledMapKeeper->isBadMove(newTileX, newTileY)) {
+    candidateMoveDirection = MOVE_DIRECTION_NO_MOVE;
+    farmerIsMoving         = false;
+    return;
+  }
 
   farmerIsMoving         = true;
   candidateMoveDirection = moveDirection;
@@ -192,5 +200,10 @@ void MainGameScene::processFarmerMovementFinish() {
   }
   else {
     moveFarmer(candidateMoveDirection);
+
+    // once more
+    if (candidateMoveDirection == MOVE_DIRECTION_NO_MOVE) {
+      farmerKeeper->doSetIdle();
+    }
   }
 }

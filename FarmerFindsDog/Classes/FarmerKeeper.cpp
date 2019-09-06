@@ -15,6 +15,7 @@ const std::string defPosFilename = "f-farmer-2.png";
 FarmerKeeper::FarmerKeeper() {
   workNode                 = nullptr;
   movementFinishedCallback = nullptr;
+  currentMoveDirection     = MOVE_DIRECTION_NO_MOVE;
 }
 
 // =============================================================================
@@ -93,19 +94,25 @@ void FarmerKeeper::doMove(const Vec2 newPos, const MoveDirection moveDirection,
   Sequence *seq = Sequence::create(actionMove, notifyScene, nullptr);
   workNode->runAction(seq);
 
+  if (currentMoveDirection != moveDirection) {
+    workNode->stopAllActionsByTag(IAT_ANIMATION);
 
-  Animation *animation = prepareAnimation(moveDirection);
-  Action    *aaction   = RepeatForever::create(Animate::create(animation));
-  aaction->setTag(IAT_ANIMATION);
-  workNode->runAction(aaction);
+    Animation *animation     = prepareAnimation(moveDirection);
+    Animate   *animateAction = Animate::create(animation);
+    animateAction->setTag(IAT_ANIMATION);
+    Action *rAction = RepeatForever::create(animateAction);
+    rAction->setTag(IAT_ANIMATION);
+    workNode->runAction(rAction);
+    currentMoveDirection = moveDirection;
+  }
 }
 
 // =============================================================================
 
 void FarmerKeeper::doSetIdle() {
-  workNode->setSpriteFrame(defPosFilename);
-
+  log("%s: here", __func__);
   workNode->stopAllActionsByTag(IAT_ANIMATION);
+  workNode->setSpriteFrame(defPosFilename);
 }
 
 // =============================================================================

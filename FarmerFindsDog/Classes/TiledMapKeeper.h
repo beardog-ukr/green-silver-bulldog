@@ -15,10 +15,13 @@ public:
                               const int posY);
 
   Vec2  getPositionForMapItem(const int tileX,
-                              const int tileY);
+                              const int tileY) const;
 
   bool  isEdgeTile(const int tileX,
-                   const int tileY);
+                   const int tileY) const;
+
+  bool  isBadMove(const int tileX,
+                  const int tileY) const;
 
 protected:
 

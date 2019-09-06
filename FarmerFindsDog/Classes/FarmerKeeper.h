@@ -24,6 +24,7 @@ protected:
 
   Sprite *workNode;
 
+  MoveDirection currentMoveDirection;
   Animation* prepareAnimation(const MoveDirection moveDirection) const;
 
 

@@ -70,7 +70,25 @@ void TiledMapKeeper::bringMapPointToCenter(const int posX,  const int posY) {
 
 // =============================================================================
 
-bool TiledMapKeeper::isEdgeTile(const int tileX, const int tileY) {
+bool TiledMapKeeper::isBadMove(const int tileX, const int tileY) const {
+  if ((tileX <= 0) || (tileX >= (mapSize.width - 1))) {
+    log("%s: %d:%d is bad move because of X", __func__, tileX, tileY);
+    return true;
+  }
+
+  if ((tileY <= 0) || (tileY >= (mapSize.height - 1))) {
+    log("%s: %d:%d is bad move because of Y", __func__, tileX, tileY);
+    return true;
+  }
+
+  // log("%s: %d:%d is not on edge (%f:%f)", __func__, tileX, tileY, pos.x,
+  // pos.y);
+  return false;
+}
+
+// =============================================================================
+
+bool TiledMapKeeper::isEdgeTile(const int tileX, const int tileY) const {
   Vec2 pos = getPositionForMapItem(tileX, tileY);
 
   if ((pos.x - tileSize.width) <= westBorder) {
@@ -100,7 +118,7 @@ bool TiledMapKeeper::isEdgeTile(const int tileX, const int tileY) {
 
 // =============================================================================
 
-Vec2 TiledMapKeeper::getPositionForMapItem(const int tileX, const int tileY) {
+Vec2 TiledMapKeeper::getPositionForMapItem(const int tileX, const int tileY) const {
   const float posX = tileX * tileSize.width + (tileSize.width / 2);
   const float posY = tileY * tileSize.height + (tileSize.height / 2);
 
@@ -123,7 +141,7 @@ Node * TiledMapKeeper::prepareNode()
     return workNode;
   }
 
-  std::string mapFilename = "tiles/m01.tmx";
+  std::string mapFilename = "tiles/m02.tmx";
 
   workNode = TMXTiledMap::create(mapFilename);
 
