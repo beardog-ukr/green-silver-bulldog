@@ -51,6 +51,7 @@ list(APPEND GAME_SOURCE
      Classes/AppDelegate.cpp
      Classes/FarmerKeeper.cpp
      Classes/MainGameScene.cpp
+     Classes/NineNutsLogger.cpp
      Classes/TiledMapKeeper.cpp
      )
 list(APPEND GAME_HEADER
@@ -58,6 +59,7 @@ list(APPEND GAME_HEADER
      Classes/FarmerKeeper.h
      Classes/MainGameScene.h
      Classes/MoveDirection.h
+     Classes/NineNutsLogger.h
      Classes/TiledMapKeeper.h
      )
 
