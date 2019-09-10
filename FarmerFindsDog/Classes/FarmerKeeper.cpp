@@ -94,7 +94,8 @@ void FarmerKeeper::doMove(const Vec2 newPos, const MoveDirection moveDirection,
   Sequence *seq = Sequence::create(actionMove, notifyScene, nullptr);
   workNode->runAction(seq);
 
-  if (currentMoveDirection != moveDirection) {
+  if ((currentMoveDirection != moveDirection) ||
+      (currentMoveDirection == MOVE_DIRECTION_NO_MOVE)) {
     workNode->stopAllActionsByTag(IAT_ANIMATION);
 
     Animation *animation     = prepareAnimation(moveDirection);
@@ -111,6 +112,7 @@ void FarmerKeeper::doMove(const Vec2 newPos, const MoveDirection moveDirection,
 
 void FarmerKeeper::doSetIdle() {
   log("%s: here", __func__);
+  currentMoveDirection = MOVE_DIRECTION_NO_MOVE;
   workNode->stopAllActionsByTag(IAT_ANIMATION);
   workNode->setSpriteFrame(defPosFilename);
 }
