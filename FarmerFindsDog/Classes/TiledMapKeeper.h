@@ -17,11 +17,14 @@ public:
   Vec2  getPositionForMapItem(const int tileX,
                               const int tileY) const;
 
-  bool  isEdgeTile(const int tileX,
-                   const int tileY) const;
-
-  bool  isBadMove(const int tileX,
+  // returns true if tile with given coordinates appears at screen edge
+  bool isEdgeTile(const int tileX,
                   const int tileY) const;
+
+  // return true if tile with given coordinates is out of bounds or there is
+  // some obstacle in this tile
+  bool isBadMove(const int tileX,
+                 const int tileY) const;
 
 protected:
 
@@ -40,4 +43,7 @@ protected:
   int mapFocusedY;
 
   TMXTiledMap *workNode;
+
+  Vec2 getTiledPos(const int tileX,
+                   const int tileY) const;
 };

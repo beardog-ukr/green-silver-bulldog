@@ -48,7 +48,7 @@ bool MainGameScene::initFarmerKeeper() {
   addChild(farmerNode);
 
   currentFarmerX = 15;
-  currentFarmerY = 11;
+  currentFarmerY = 14;
   const Vec2 tmpp = tiledMapKeeper->getPositionForMapItem(currentFarmerX, currentFarmerY);
   farmerKeeper->doStraightMove(tmpp);
 
@@ -68,7 +68,7 @@ bool MainGameScene::initTiledMapKeeper() {
     addChild(nd);
   }
 
-  tiledMapKeeper->bringMapPointToCenter(16, 10);
+  tiledMapKeeper->bringMapPointToCenter(15, 14);
 
   return true;
 }

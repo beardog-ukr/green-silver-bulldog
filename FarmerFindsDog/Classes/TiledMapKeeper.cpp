@@ -1,7 +1,10 @@
 #include "TiledMapKeeper.h"
 
+#include "NineNutsLogger.h"
+
 #include <cmath> // fmod,
-// #include <sstream> // ostringstream
+
+const std::string obstaclesLayerName = "obstacles-layer";
 
 // =============================================================================
 // =============================================================================
@@ -25,15 +28,15 @@ void TiledMapKeeper::bringMapPointToCenter(const int posX,  const int posY) {
 
   //
   const float cX = westBorder + (visibleSize.width - westBorder - eastBorder) / 2 +
-                   tileSize.width /  2;
+                   tileSize.width / 2;
   const float cY = northBorder + (visibleSize.height - southBorder - northBorder) / 2 +
                    tileSize.height / 2;
 
   log("%s: screen center is as %f : %f ", __func__, cX, cY);
 
   // common case
-  float baseX = posX * tileSize.width;  //
-  float baseY = posY * tileSize.height; //
+  float baseX = (posX + 1) * tileSize.width;  //
+  float baseY = (posY + 1) * tileSize.height; //
 
   float pX = baseX;
   float pY = baseY;
@@ -70,6 +73,17 @@ void TiledMapKeeper::bringMapPointToCenter(const int posX,  const int posY) {
 
 // =============================================================================
 
+Vec2 TiledMapKeeper::getTiledPos(const int tileX,
+                                 const int tileY) const {
+  int ny = mapSize.height - tileY - 1;
+
+  log("%s: converted  %d to %d", __func__, tileY, ny);
+
+  return Vec2(tileX, ny);
+}
+
+// =============================================================================
+
 bool TiledMapKeeper::isBadMove(const int tileX, const int tileY) const {
   if ((tileX <= 0) || (tileX >= (mapSize.width - 1))) {
     log("%s: %d:%d is bad move because of X", __func__, tileX, tileY);
@@ -81,8 +95,36 @@ bool TiledMapKeeper::isBadMove(const int tileX, const int tileY) const {
     return true;
   }
 
-  // log("%s: %d:%d is not on edge (%f:%f)", __func__, tileX, tileY, pos.x,
-  // pos.y);
+
+  TMXLayer *layer = workNode->getLayer(obstaclesLayerName);
+
+  if (layer != nullptr) {
+    const int   tileGid = layer->getTileGIDAt(getTiledPos(tileX, tileY));
+    const Value prop    = workNode->getPropertiesForGID(tileGid);
+
+    bool isUnpassable = false; // passable by default
+
+    if (!prop.isNull()) {
+      const ValueMap vm    = prop.asValueMap();
+      const auto     found = vm.find("Unpassable");
+
+      if (found != vm.end()) {
+        isUnpassable = found->second.asBool();
+      }
+    }
+
+    if (isUnpassable) {
+      log("%s: %d:%d is bad move (unpassable)", __func__, tileX, tileY);
+      log("%s: %d:%d prop is %s",               __func__, tileX, tileY,
+          NineNutsLogger::value2str(prop).c_str());
+      return true;
+    }
+  }
+  else {
+    log("%s: failed to find '%s' layer", __func__, obstaclesLayerName.c_str());
+  }
+
+  // finally
   return false;
 }
 
@@ -141,6 +183,7 @@ Node * TiledMapKeeper::prepareNode()
     return workNode;
   }
 
+  // --- load file  --------------------
   std::string mapFilename = "tiles/m02.tmx";
 
   workNode = TMXTiledMap::create(mapFilename);
@@ -153,11 +196,13 @@ Node * TiledMapKeeper::prepareNode()
     log("map loaded...");
   }
 
+  // --- init sizes  --------------------
   tileSize = workNode->getTileSize();
   mapSize  = workNode->getMapSize();
 
   visibleSize = Director::getInstance()->getVisibleSize();
 
+  // --- init "border" values  --------------------
   float tmpf = fmod(visibleSize.height, tileSize.height);
 
   if (0 == tmpf) {
@@ -183,5 +228,13 @@ Node * TiledMapKeeper::prepareNode()
   log("%s: borders calculated as %f,%f, %f, %f ", __func__,
       northBorder, southBorder, westBorder, eastBorder);
 
+  // --- hide "obstacles" layer  --------------------
+  TMXLayer *layer = workNode->getLayer(obstaclesLayerName);
+
+  if (layer != nullptr) {
+    layer->setVisible(false);
+  }
+
+  // --- finally
   return workNode;
 }
