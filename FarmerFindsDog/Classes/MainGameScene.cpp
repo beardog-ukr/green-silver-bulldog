@@ -190,7 +190,6 @@ void MainGameScene::moveFarmerForced(const MoveDirection moveDirection) {
   const int diffY[] = { 1, -1, 0, 0 };
 
   const int newTileX = currentFarmerX + diffX[moveDirection];
-
   const int newTileY = currentFarmerY + diffY[moveDirection];
 
   if (tiledMapKeeper->isBadMove(newTileX, newTileY)) {

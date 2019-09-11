@@ -49,6 +49,7 @@ endif()
 # add cross-platforms source files and header files
 list(APPEND GAME_SOURCE
      Classes/AppDelegate.cpp
+     Classes/CharacterKeeper.cpp
      Classes/DogKeeper.cpp
      Classes/FarmerKeeper.cpp
      Classes/MainGameScene.cpp
@@ -57,6 +58,7 @@ list(APPEND GAME_SOURCE
      )
 list(APPEND GAME_HEADER
      Classes/AppDelegate.h
+     Classes/CharacterKeeper.h
      Classes/DogKeeper.h
      Classes/FarmerKeeper.h
      Classes/MainGameScene.h
