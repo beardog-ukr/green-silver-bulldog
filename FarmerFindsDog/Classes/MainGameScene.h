@@ -4,9 +4,9 @@
 using namespace cocos2d;
 
 #include "MoveDirection.h"
-class TiledMapKeeper;
+class DogKeeper;
 class FarmerKeeper;
-
+class TiledMapKeeper;
 
 class MainGameScene : public Scene {
 public:
@@ -20,8 +20,9 @@ public:
 
 protected:
 
-  TiledMapKeeper *tiledMapKeeper;
+  DogKeeper *dogKeeper;
   FarmerKeeper *farmerKeeper;
+  TiledMapKeeper *tiledMapKeeper;
 
   int currentFarmerX;
   int currentFarmerY;
@@ -40,10 +41,19 @@ protected:
 
 
   bool initFarmerKeeper();
+  bool initDogKeeper();
   bool initTiledMapKeeper();
 
-  void onKeyPressedScene(EventKeyboard::KeyCode keyCode,
-                         Event                 *event);
+  int currentDogX;
+  int currentDogY;
+  bool dogIsActive;
+  void          makeDogMove();
 
-  void processFarmerMovementFinish();
+  // int lastDogMove;
+  MoveDirection generateNextDogMove();
+
+  void          onKeyPressedScene(EventKeyboard::KeyCode keyCode,
+                                  Event                 *event);
+
+  void          processFarmerMovementFinish();
 };

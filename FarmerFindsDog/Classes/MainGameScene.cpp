@@ -1,5 +1,6 @@
 #include "MainGameScene.h"
 
+#include "DogKeeper.h"
 #include "FarmerKeeper.h"
 #include "TiledMapKeeper.h"
 
@@ -24,6 +25,10 @@ bool MainGameScene::init()
   }
 
   if (!initTiledMapKeeper()) {
+    return false;
+  }
+
+  if (!initDogKeeper()) {
     return false;
   }
 
@@ -57,6 +62,34 @@ bool MainGameScene::initFarmerKeeper() {
 
 // =============================================================================
 
+bool MainGameScene::initDogKeeper() {
+  //
+  dogKeeper = new DogKeeper();
+  Node *dogNode = dogKeeper->prepareNode();
+  addChild(dogNode);
+
+  // lastDogMove = 0;
+
+  currentDogX = 12;
+  currentDogY = 13;
+  const Vec2 tmpp = tiledMapKeeper->getPositionForMapItem(currentDogX, currentDogY);
+  dogKeeper->doStraightMove(tmpp);
+
+  DelayTime *pause = DelayTime::create(1);
+
+  CallFunc *cf = CallFunc::create([this]() {
+    // this->processFarmerMovementFinish();
+    log("%s: init dog move", __func__);
+    this->makeDogMove();
+  });
+
+  this->runAction(RepeatForever::create(Sequence::create(pause, cf, NULL)));
+
+  return true;
+}
+
+// =============================================================================
+
 bool MainGameScene::initTiledMapKeeper() {
   auto visibleSize = Director::getInstance()->getVisibleSize();
   Vec2 origin      = Director::getInstance()->getVisibleOrigin();
@@ -84,6 +117,60 @@ void MainGameScene::initKeyboardProcessing() {
 
 // =============================================================================
 
+MoveDirection MainGameScene::generateNextDogMove() {
+  // "Debug" variant, make it do rounds
+  const MoveDirection moveDirections[] = {
+    MOVE_DIRECTION_DOWN, MOVE_DIRECTION_LEFT, MOVE_DIRECTION_UP, MOVE_DIRECTION_RIGHT
+  };
+
+  static int lastDogMoveCode = 4;
+
+  lastDogMoveCode = lastDogMoveCode + 1;
+
+  if (lastDogMoveCode > 3) {
+    lastDogMoveCode = 0;
+  }
+  return moveDirections[lastDogMoveCode];
+
+  // "True" variant, pure random
+  // const MoveDirection moveDirections[] = {
+  // MOVE_DIRECTION_UP, MOVE_DIRECTION_DOWN, MOVE_DIRECTION_LEFT,
+  // MOVE_DIRECTION_RIGHT
+  // };
+  // return RandomHelper::random_int(0, 3);
+}
+
+void MainGameScene::makeDogMove() {
+  // For following arays the order is up, down, left, right, none
+  const int diffX[] = { 0, 0, -1, 1, 0 };
+  const int diffY[] = { 1, -1, 0, 0, 0 };
+
+  MoveDirection moveDirection = generateNextDogMove();
+
+  const int newTileX = currentDogX + diffX[(int)moveDirection];
+  const int newTileY = currentDogY + diffY[(int)moveDirection];
+
+  if (tiledMapKeeper->isBadMove(newTileX, newTileY)) {
+    log("%s: proposed move for dog is bad, stay", __func__);
+    dogKeeper->doSetIdle();
+
+    return;
+  }
+
+  currentDogX = newTileX;
+  currentDogY = newTileY;
+
+  CallFunc *cf = CallFunc::create([this]() {
+    // this->processFarmerMovementFinish();
+    log("boo");
+  });
+
+  const Vec2 newPos = tiledMapKeeper->getPositionForMapItem(newTileX, newTileY);
+  dogKeeper->doMove(newPos, moveDirection, cf);
+}
+
+// =============================================================================
+
 void MainGameScene::moveFarmer(const MoveDirection moveDirection) {
   if (farmerIsMoving) {
     candidateMoveDirection = moveDirection;
@@ -104,21 +191,7 @@ void MainGameScene::moveFarmerForced(const MoveDirection moveDirection) {
 
   const int newTileX = currentFarmerX + diffX[moveDirection];
 
-  // if ((newTileX < 0) || (newTileX >= mapSize.width)) {
-  //   log("%s: move to %d cancelled because of X (becomes %d)", __func__,
-  // moveDirection, newTileX);
-  //   candidateMoveDirection = MOVE_DIRECTION_NO_MOVE;
-  //   farmerIsMoving         = false;
-  //   return;
-  // }
-
   const int newTileY = currentFarmerY + diffY[moveDirection];
-
-  // if ((newTileY < 0) || (newTileY >= mapSize.height)) {
-  //   log("%s: move to %d cancelled because of Y (becomes %d)", __func__,
-  // moveDirection, newTileY);
-  //   return;
-  // }
 
   if (tiledMapKeeper->isBadMove(newTileX, newTileY)) {
     candidateMoveDirection = MOVE_DIRECTION_NO_MOVE;
@@ -191,8 +264,10 @@ void MainGameScene::processFarmerMovementFinish() {
   if (tiledMapKeeper->isEdgeTile(currentFarmerX, currentFarmerY)) {
     log("%s: will initiate refocus", __func__);
     tiledMapKeeper->bringMapPointToCenter(currentFarmerX, currentFarmerY);
-    const Vec2 nPos = tiledMapKeeper->getPositionForMapItem(currentFarmerX, currentFarmerY);
-    farmerKeeper->doStraightMove(nPos);
+    const Vec2 fPos = tiledMapKeeper->getPositionForMapItem(currentFarmerX, currentFarmerY);
+    farmerKeeper->doStraightMove(fPos);
+    const Vec2 dPos = tiledMapKeeper->getPositionForMapItem(currentDogX, currentDogY);
+    dogKeeper->doStraightMove(dPos);
   }
 
   if (candidateMoveDirection == MOVE_DIRECTION_NO_MOVE) {
