@@ -28,14 +28,14 @@ FarmerKeeper::~FarmerKeeper() {
 // =============================================================================
 
 Animation * FarmerKeeper::prepareAnimation(const MoveDirection moveDirection) const {
-  char templateLeft[]  = "left-%d.png";
-  char templateRight[] = "right-%d.png";
-  char templateUp[]    = "b-farmer-%d.png";
-  char templateDown[]  = "f-farmer-%d.png";
+  const char templateLeft[]  = "l-farmer-%d.png";
+  const char templateRight[] = "r-farmer-%d.png";
+  const char templateUp[]    = "b-farmer-%d.png";
+  const char templateDown[]  = "f-farmer-%d.png";
 
-  char *templateArr[] = { templateUp, templateDown, templateLeft, templateRight, nullptr };
+  const char *templateArr[] = { templateUp, templateDown, templateLeft, templateRight, nullptr };
 
-  char *templateStr = templateArr[moveDirection];
+  const char *templateStr = templateArr[moveDirection];
 
   if (templateStr == nullptr) {
     log("%s: unexpected", __func__);

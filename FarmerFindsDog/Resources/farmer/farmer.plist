@@ -94,7 +94,7 @@
                 <key>textureRotated</key>
                 <false/>
             </dict>
-            <key>left-1.png</key>
+            <key>l-farmer-1.png</key>
             <dict>
                 <key>aliases</key>
                 <array/>
@@ -109,7 +109,7 @@
                 <key>textureRotated</key>
                 <false/>
             </dict>
-            <key>left-2.png</key>
+            <key>l-farmer-2.png</key>
             <dict>
                 <key>aliases</key>
                 <array/>
@@ -124,7 +124,7 @@
                 <key>textureRotated</key>
                 <false/>
             </dict>
-            <key>left-3.png</key>
+            <key>l-farmer-3.png</key>
             <dict>
                 <key>aliases</key>
                 <array/>
@@ -139,7 +139,7 @@
                 <key>textureRotated</key>
                 <false/>
             </dict>
-            <key>right-1.png</key>
+            <key>r-farmer-1.png</key>
             <dict>
                 <key>aliases</key>
                 <array/>
@@ -154,7 +154,7 @@
                 <key>textureRotated</key>
                 <false/>
             </dict>
-            <key>right-2.png</key>
+            <key>r-farmer-2.png</key>
             <dict>
                 <key>aliases</key>
                 <array/>
@@ -169,7 +169,7 @@
                 <key>textureRotated</key>
                 <false/>
             </dict>
-            <key>right-3.png</key>
+            <key>r-farmer-3.png</key>
             <dict>
                 <key>aliases</key>
                 <array/>
@@ -198,7 +198,7 @@
             <key>size</key>
             <string>{768,64}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:2deab9ba1eacf745ce9c1cbaa7c861e0:2340884e7d92104b00d553b4025b8a3b:f7a2f1d665f3f262c478c524a468742a$</string>
+            <string>$TexturePacker:SmartUpdate:9c795c498921029061a748840e743835:2340884e7d92104b00d553b4025b8a3b:f7a2f1d665f3f262c478c524a468742a$</string>
             <key>textureFileName</key>
             <string>farmer.png</string>
         </dict>
