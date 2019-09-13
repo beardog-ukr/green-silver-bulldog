@@ -3,7 +3,7 @@
  <properties>
   <property name="MetaTileId" type="int" value="0"/>
  </properties>
- <image source="../../../../mtproj/tileset/z01.png" width="704" height="64"/>
+ <image source="meta_tiles_64x64_v01.png" width="704" height="64"/>
  <tile id="0">
   <properties>
    <property name="MetaTileCode" type="int" value="3"/>
