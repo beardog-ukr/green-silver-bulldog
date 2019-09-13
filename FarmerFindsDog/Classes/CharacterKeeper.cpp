@@ -124,6 +124,7 @@ void CharacterKeeper::doStraightMove(const Vec2 newPos) {
     return;
   }
 
+  workNode->stopAllActionsByTag(IAT_ANIMATION);
   workNode->setPosition(newPos);
 }
 
