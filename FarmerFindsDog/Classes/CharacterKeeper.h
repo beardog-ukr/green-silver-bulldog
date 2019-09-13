@@ -13,9 +13,9 @@ public:
 
   virtual Node* prepareNode();
 
-  void          doMove(const Vec2          newPos,
-                       const MoveDirection moveDirection,
-                       CallFunc           *notifySceneCallback);
+  void          doMove(const Vec2            newPos,
+                       const MoveDirection   moveDirection,
+                       const CallFunc *const notifySceneCallback = nullptr);
   virtual void  doStraightMove(const Vec2 newPos);
 
   virtual void  doSetIdle();

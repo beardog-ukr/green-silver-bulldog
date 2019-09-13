@@ -41,7 +41,8 @@ Animation * CharacterKeeper::prepareAnimation(const MoveDirection moveDirection)
 
   for (int i = 1; i <= 3; i++) {
     sprintf(tmps, templateStr.c_str(), i);
-    log("%s: adding %s", __func__, tmps);
+
+    // log("%s: adding %s", __func__, tmps);
 
     SpriteFrame *sf = scache->getSpriteFrameByName(tmps);
 
@@ -78,13 +79,22 @@ Node * CharacterKeeper::prepareNode() {
 // =============================================================================
 
 void CharacterKeeper::doMove(const Vec2 newPos, const MoveDirection moveDirection,
-                             CallFunc *notifyScene) {
+                             const CallFunc *const notifyScene) {
   log("%s: move requested to %f:%f", __func__, newPos.x, newPos.y);
 
   FiniteTimeAction *actionMove = MoveTo::create(ITEM_MOVE_TIME, newPos);
   actionMove->setTag(IAT_MOVE);
 
-  Sequence *seq = Sequence::create(actionMove, notifyScene, nullptr);
+  Sequence *seq = nullptr;
+
+  if (notifyScene == nullptr) {
+    seq = Sequence::create(actionMove, nullptr);
+  }
+  else {
+    seq = Sequence::create(actionMove, notifyScene, nullptr);
+  }
+  seq->setTag(IAT_MOVE);
+
   workNode->runAction(seq);
 
   if ((currentMoveDirection != moveDirection) ||
@@ -124,7 +134,7 @@ void CharacterKeeper::doStraightMove(const Vec2 newPos) {
     return;
   }
 
-  workNode->stopAllActionsByTag(IAT_ANIMATION);
+  workNode->stopAllActionsByTag(IAT_MOVE);
   workNode->setPosition(newPos);
 }
 

@@ -160,13 +160,8 @@ void MainGameScene::makeDogMove() {
   currentDogX = newTileX;
   currentDogY = newTileY;
 
-  CallFunc *cf = CallFunc::create([this]() {
-    // this->processFarmerMovementFinish();
-    log("boo");
-  });
-
   const Vec2 newPos = tiledMapKeeper->getPositionForMapItem(newTileX, newTileY);
-  dogKeeper->doMove(newPos, moveDirection, cf);
+  dogKeeper->doMove(newPos, moveDirection);
 }
 
 // =============================================================================
@@ -263,10 +258,11 @@ void MainGameScene::processFarmerMovementFinish() {
   if (tiledMapKeeper->isEdgeTile(currentFarmerX, currentFarmerY)) {
     log("%s: will initiate refocus", __func__);
     tiledMapKeeper->bringMapPointToCenter(currentFarmerX, currentFarmerY);
-    const Vec2 fPos = tiledMapKeeper->getPositionForMapItem(currentFarmerX, currentFarmerY);
-    farmerKeeper->doStraightMove(fPos);
     const Vec2 dPos = tiledMapKeeper->getPositionForMapItem(currentDogX, currentDogY);
     dogKeeper->doStraightMove(dPos);
+    dogKeeper->doSetIdle();
+    const Vec2 fPos = tiledMapKeeper->getPositionForMapItem(currentFarmerX, currentFarmerY);
+    farmerKeeper->doStraightMove(fPos);
   }
 
   if (candidateMoveDirection == MOVE_DIRECTION_NO_MOVE) {
