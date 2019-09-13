@@ -62,6 +62,7 @@ list(APPEND GAME_HEADER
      Classes/DogKeeper.h
      Classes/FarmerKeeper.h
      Classes/MainGameScene.h
+     Classes/MetaTileCode.h
      Classes/MoveDirection.h
      Classes/NineNutsLogger.h
      Classes/TiledMapKeeper.h

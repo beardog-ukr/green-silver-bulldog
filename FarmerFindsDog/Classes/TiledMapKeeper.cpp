@@ -1,10 +1,11 @@
 #include "TiledMapKeeper.h"
 
+#include "MetaTileCode.h"
 #include "NineNutsLogger.h"
 
 #include <cmath> // fmod,
 
-const std::string obstaclesLayerName = "obstacles-layer";
+const std::string metaLayerName = "meta1-layer";
 
 // =============================================================================
 // =============================================================================
@@ -96,7 +97,7 @@ bool TiledMapKeeper::isBadMove(const int tileX, const int tileY) const {
   }
 
 
-  TMXLayer *layer = workNode->getLayer(obstaclesLayerName);
+  TMXLayer *layer = workNode->getLayer(metaLayerName);
 
   if (layer != nullptr) {
     const int   tileGid = layer->getTileGIDAt(getTiledPos(tileX, tileY));
@@ -106,10 +107,10 @@ bool TiledMapKeeper::isBadMove(const int tileX, const int tileY) const {
 
     if (!prop.isNull()) {
       const ValueMap vm    = prop.asValueMap();
-      const auto     found = vm.find("Unpassable");
+      const auto     found = vm.find("MetaTileCode");
 
       if (found != vm.end()) {
-        isUnpassable = found->second.asBool();
+        isUnpassable = (found->second.asInt() == MTC_FFD_UNPASSABLE);
       }
     }
 
@@ -121,7 +122,7 @@ bool TiledMapKeeper::isBadMove(const int tileX, const int tileY) const {
     }
   }
   else {
-    log("%s: failed to find '%s' layer", __func__, obstaclesLayerName.c_str());
+    log("%s: failed to find '%s' layer", __func__, metaLayerName.c_str());
   }
 
   // finally
@@ -184,12 +185,12 @@ Node * TiledMapKeeper::prepareNode()
   }
 
   // --- load file  --------------------
-  std::string mapFilename = "tiles/m02.tmx";
+  std::string mapFilename = "tiles/m03.tmx";
 
   workNode = TMXTiledMap::create(mapFilename);
 
   if (workNode == nullptr)  {
-    log("failed to load tiled map");
+    log("failed to load tiled map.");
     return nullptr;
   }
   else {
@@ -228,11 +229,15 @@ Node * TiledMapKeeper::prepareNode()
   log("%s: borders calculated as %f,%f, %f, %f ", __func__,
       northBorder, southBorder, westBorder, eastBorder);
 
-  // --- hide "obstacles" layer  --------------------
-  TMXLayer *layer = workNode->getLayer(obstaclesLayerName);
+  // --- hide "meta" layer  --------------------
+  TMXLayer *layer = workNode->getLayer(metaLayerName);
 
   if (layer != nullptr) {
     layer->setVisible(false);
+  }
+  else {
+    log("%s: Warning: '%s' layer not found in '%s'", __func__,
+        metaLayerName.c_str(), mapFilename.c_str());
   }
 
   // --- finally
