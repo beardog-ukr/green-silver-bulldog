@@ -68,10 +68,10 @@ bool MainGameScene::initDogKeeper() {
   Node *dogNode = dogKeeper->prepareNode();
   addChild(dogNode);
 
-  // lastDogMove = 0;
+  dogBehavior = DB_ROTATES;
 
-  currentDogX = 12;
-  currentDogY = 13;
+  currentDogX = 5;
+  currentDogY = 20;
   const Vec2 tmpp = tiledMapKeeper->getPositionForMapItem(currentDogX, currentDogY);
   dogKeeper->doStraightMove(tmpp);
 
@@ -116,9 +116,7 @@ void MainGameScene::initKeyboardProcessing() {
 }
 
 // =============================================================================
-
-MoveDirection MainGameScene::generateNextDogMove() {
-  // "Debug" variant, make it do rounds
+MoveDirection MainGameScene::generateNextDogMoveOnRotates() {
   const MoveDirection moveDirections[] = {
     MOVE_DIRECTION_DOWN, MOVE_DIRECTION_LEFT, MOVE_DIRECTION_UP, MOVE_DIRECTION_RIGHT
   };
@@ -131,21 +129,101 @@ MoveDirection MainGameScene::generateNextDogMove() {
     lastDogMoveCode = 0;
   }
   return moveDirections[lastDogMoveCode];
-
-  // "True" variant, pure random
-  // const MoveDirection moveDirections[] = {
-  // MOVE_DIRECTION_UP, MOVE_DIRECTION_DOWN, MOVE_DIRECTION_LEFT,
-  // MOVE_DIRECTION_RIGHT
-  // };
-  // return RandomHelper::random_int(0, 3);
 }
+
+// =============================================================================
+
+MoveDirection MainGameScene::generateNextDogMoveOnRandom() {
+  const MoveDirection moveDirections[] = {
+    MOVE_DIRECTION_UP, MOVE_DIRECTION_DOWN, MOVE_DIRECTION_LEFT,
+    MOVE_DIRECTION_RIGHT
+  };
+
+  return moveDirections[RandomHelper::random_int(0, 3)];
+}
+
+// =============================================================================
+
+MoveDirection MainGameScene::generateNextDogMoveOnFollows() {
+  // Tries to get close to farmer on X
+  const int diffX[] = { 0, 0, -1, 1, 0 };
+  const int diffY[] = { 1, -1, 0, 0, 0 };
+
+  MoveDirection result = MOVE_DIRECTION_NO_MOVE;
+
+  if (abs(currentDogX - currentFarmerX) > 1) {
+    if (currentDogX > currentFarmerX) {
+      result = MOVE_DIRECTION_LEFT;
+    }
+    else {
+      result = MOVE_DIRECTION_RIGHT;
+    }
+
+    const int newTileX = currentDogX + diffX[(int)result];
+
+    if (!tiledMapKeeper->isBadMove(newTileX, currentDogY)) {
+      return result;
+    }
+  }
+
+  // if impossible or already on X, tries to get close on Y
+  if (abs(currentDogY - currentFarmerY) > 1) {
+    if (currentDogY > currentFarmerY) {
+      result = MOVE_DIRECTION_DOWN;
+    }
+    else {
+      result = MOVE_DIRECTION_UP;
+    }
+
+    const int newTileY = currentDogY + diffY[(int)result];
+
+    if (!tiledMapKeeper->isBadMove(currentDogX, newTileY)) {
+      return result;
+    }
+  }
+
+  // if impossible, that's all
+  return MOVE_DIRECTION_NO_MOVE;
+}
+
+// =============================================================================
+
+MoveDirection MainGameScene::generateNextDogMove() {
+  MoveDirection result = MOVE_DIRECTION_NO_MOVE;
+
+  switch (dogBehavior) {
+  case DB_FOLLOWS:
+    result = generateNextDogMoveOnFollows();
+    break;
+
+  case DB_RANDOM:
+    result = generateNextDogMoveOnRandom();
+    break;
+
+  case DB_ROTATES:
+    result = generateNextDogMoveOnRotates();
+    break;
+
+  default:
+    result = MOVE_DIRECTION_NO_MOVE;
+  }
+
+  return result;
+}
+
+// =============================================================================
 
 void MainGameScene::makeDogMove() {
   // For following arays the order is up, down, left, right, none
   const int diffX[] = { 0, 0, -1, 1, 0 };
   const int diffY[] = { 1, -1, 0, 0, 0 };
 
-  MoveDirection moveDirection = generateNextDogMove();
+  const MoveDirection moveDirection = generateNextDogMove();
+
+  if (moveDirection == MOVE_DIRECTION_NO_MOVE) {
+    dogKeeper->doSetIdle();
+    return;
+  }
 
   const int newTileX = currentDogX + diffX[(int)moveDirection];
   const int newTileY = currentDogY + diffY[(int)moveDirection];
@@ -234,6 +312,10 @@ void MainGameScene::onKeyPressedScene(EventKeyboard::KeyCode keyCode,  Event *ev
     candidateMoveDirection = MOVE_DIRECTION_NO_MOVE;
     break;
 
+  case EventKeyboard::KeyCode::KEY_C:
+    processFarmerCall();
+    break;
+
   case EventKeyboard::KeyCode::KEY_X:
     log("%s: Need to get out.", __func__);
 
@@ -244,6 +326,24 @@ void MainGameScene::onKeyPressedScene(EventKeyboard::KeyCode keyCode,  Event *ev
   default:
     log("%s: key %d will be ignored", __func__, (int)keyCode);
   }
+}
+
+// =============================================================================
+
+void MainGameScene::processFarmerCall() {
+  const int absDiffX = abs(currentDogX - currentFarmerX);
+  const int absDiffY = abs(currentDogY - currentFarmerY);
+
+  const int distanceThreshold = 3;
+
+  if (!((absDiffX <= distanceThreshold) && (absDiffY <= distanceThreshold))) {
+    log("%s: called fro too far away", __func__);
+    return;
+  }
+
+  // else
+  log("%s: call was accepted", __func__);
+  dogBehavior = DB_FOLLOWS;
 }
 
 // =============================================================================

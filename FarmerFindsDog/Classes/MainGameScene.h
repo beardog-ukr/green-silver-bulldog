@@ -47,10 +47,23 @@ protected:
   int currentDogX;
   int currentDogY;
   bool dogIsActive;
-  void          makeDogMove();
+  void makeDogMove();
+
+  enum DogBehavior {
+    DB_ROTATES = 0, // "Debug" variant, make it do rounds
+    DB_RANDOM,      // "True" variant, pure random
+    DB_FOLLOWS
+  };
+  DogBehavior dogBehavior;
 
   // int lastDogMove;
   MoveDirection generateNextDogMove();
+  MoveDirection generateNextDogMoveOnFollows();
+  MoveDirection generateNextDogMoveOnRandom();
+  MoveDirection generateNextDogMoveOnRotates();
+
+  //
+  void          processFarmerCall();
 
   void          onKeyPressedScene(EventKeyboard::KeyCode keyCode,
                                   Event                 *event);

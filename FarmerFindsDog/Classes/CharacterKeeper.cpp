@@ -82,6 +82,11 @@ void CharacterKeeper::doMove(const Vec2 newPos, const MoveDirection moveDirectio
                              const CallFunc *const notifyScene) {
   log("%s: move requested to %f:%f", __func__, newPos.x, newPos.y);
 
+  if (moveDirection == MOVE_DIRECTION_NO_MOVE) {
+    doSetIdle();
+    return;
+  }
+
   FiniteTimeAction *actionMove = MoveTo::create(ITEM_MOVE_TIME, newPos);
   actionMove->setTag(IAT_MOVE);
 
