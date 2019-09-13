@@ -9,13 +9,15 @@ public:
   TiledMapKeeper();
   virtual ~TiledMapKeeper();
 
-  Node* prepareNode();
+  // Node* prepareNode();
 
-  void  bringMapPointToCenter(const int posX,
-                              const int posY);
+  void setWorkNode(TMXTiledMap *tiledNode);
 
-  Vec2  getPositionForMapItem(const int tileX,
-                              const int tileY) const;
+  void bringMapPointToCenter(const int posX,
+                             const int posY);
+
+  Vec2 getPositionForMapItem(const int tileX,
+                             const int tileY) const;
 
   // returns true if tile with given coordinates appears at screen edge
   bool isEdgeTile(const int tileX,

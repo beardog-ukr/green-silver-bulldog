@@ -7,6 +7,7 @@ using namespace cocos2d;
 class DogKeeper;
 class FarmerKeeper;
 class TiledMapKeeper;
+class TiledMapLoader;
 
 class MainGameScene : public Scene {
 public:
@@ -40,9 +41,9 @@ protected:
   void moveFarmerForced(const MoveDirection moveDirection);
 
 
-  bool initFarmerKeeper();
-  bool initDogKeeper();
-  bool initTiledMapKeeper();
+  bool initFarmerKeeper(TiledMapLoader *const mapLoader);
+  bool initDogKeeper(TiledMapLoader *const mapLoader);
+  bool initTiledMapKeeper(TiledMapLoader *const mapLoader);
 
   int currentDogX;
   int currentDogY;

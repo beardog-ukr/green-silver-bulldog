@@ -3,6 +3,7 @@
 #include "DogKeeper.h"
 #include "FarmerKeeper.h"
 #include "TiledMapKeeper.h"
+#include "TiledMapLoader.h"
 
 #include "SimpleAudioEngine.h"
 
@@ -24,17 +25,35 @@ bool MainGameScene::init()
     return false;
   }
 
-  if (!initTiledMapKeeper()) {
-    return false;
+  TiledMapLoader *mapLoader = nullptr;
+  bool result               = true;
+
+  do {
+    mapLoader = new TiledMapLoader();
+
+    if (!initTiledMapKeeper(mapLoader)) {
+      result = false;
+      break;
+    }
+
+    if (!initDogKeeper(mapLoader)) {
+      result = false;
+      break;
+    }
+
+    if (!initFarmerKeeper(mapLoader)) {
+      result = false;
+      break;
+    }
+  }
+  while (false);
+
+  delete mapLoader;
+
+  if (!result) {
+    return result;
   }
 
-  if (!initDogKeeper()) {
-    return false;
-  }
-
-  if (!initFarmerKeeper()) {
-    return false;
-  }
 
   initKeyboardProcessing();
 
@@ -46,14 +65,14 @@ bool MainGameScene::init()
 
 // =============================================================================
 
-bool MainGameScene::initFarmerKeeper() {
-  // ShipKeeper
+bool MainGameScene::initFarmerKeeper(TiledMapLoader *const mapLoader) {
+  //
   farmerKeeper = new FarmerKeeper();
   Node *farmerNode = farmerKeeper->prepareNode();
   addChild(farmerNode);
 
-  currentFarmerX = 15;
-  currentFarmerY = 14;
+  currentFarmerX = mapLoader->getFarmerStartX();
+  currentFarmerY = mapLoader->getFarmerStartY();
   const Vec2 tmpp = tiledMapKeeper->getPositionForMapItem(currentFarmerX, currentFarmerY);
   farmerKeeper->doStraightMove(tmpp);
 
@@ -62,7 +81,7 @@ bool MainGameScene::initFarmerKeeper() {
 
 // =============================================================================
 
-bool MainGameScene::initDogKeeper() {
+bool MainGameScene::initDogKeeper(TiledMapLoader *const mapLoader) {
   //
   dogKeeper = new DogKeeper();
   Node *dogNode = dogKeeper->prepareNode();
@@ -70,8 +89,8 @@ bool MainGameScene::initDogKeeper() {
 
   dogBehavior = DB_ROTATES;
 
-  currentDogX = 5;
-  currentDogY = 20;
+  currentDogX = mapLoader->getDogStartX();
+  currentDogY = mapLoader->getDogStartY();
   const Vec2 tmpp = tiledMapKeeper->getPositionForMapItem(currentDogX, currentDogY);
   dogKeeper->doStraightMove(tmpp);
 
@@ -90,18 +109,19 @@ bool MainGameScene::initDogKeeper() {
 
 // =============================================================================
 
-bool MainGameScene::initTiledMapKeeper() {
-  auto visibleSize = Director::getInstance()->getVisibleSize();
-  Vec2 origin      = Director::getInstance()->getVisibleOrigin();
+bool MainGameScene::initTiledMapKeeper(TiledMapLoader *const mapLoader) {
+  std::string  mapFilename = "tiles/m03.tmx";
+  TMXTiledMap *nd          = mapLoader->loadFile(mapFilename);
 
-  tiledMapKeeper = new TiledMapKeeper();
-  Node *nd = tiledMapKeeper->prepareNode();
-
-  if (nd != nullptr) {
-    addChild(nd);
+  if (nd == nullptr) {
+    return false;
   }
 
-  tiledMapKeeper->bringMapPointToCenter(15, 14);
+  addChild(nd);
+
+  tiledMapKeeper = new TiledMapKeeper();
+  tiledMapKeeper->setWorkNode(nd);
+  tiledMapKeeper->bringMapPointToCenter(mapLoader->getFarmerStartX(), mapLoader->getFarmerStartY());
 
   return true;
 }

@@ -3,9 +3,10 @@
 #include "MetaTileCode.h"
 #include "NineNutsLogger.h"
 
-#include <cmath> // fmod,
+#include <cmath>                                 // fmod,
 
-const std::string metaLayerName = "meta1-layer";
+const std::string metaLayerName = "meta1-layer"; // TODO: this one is duplicated
+                                                 // in TiledMapLoader
 
 // =============================================================================
 // =============================================================================
@@ -178,24 +179,8 @@ Vec2 TiledMapKeeper::getPositionForMapItem(const int tileX, const int tileY) con
 
 // =============================================================================
 
-Node * TiledMapKeeper::prepareNode()
-{
-  if (workNode != nullptr) {
-    return workNode;
-  }
-
-  // --- load file  --------------------
-  std::string mapFilename = "tiles/m03.tmx";
-
-  workNode = TMXTiledMap::create(mapFilename);
-
-  if (workNode == nullptr)  {
-    log("failed to load tiled map.");
-    return nullptr;
-  }
-  else {
-    log("map loaded...");
-  }
+void TiledMapKeeper::setWorkNode(TMXTiledMap *tiledNode) {
+  workNode = tiledNode;
 
   // --- init sizes  --------------------
   tileSize = workNode->getTileSize();
@@ -228,18 +213,4 @@ Node * TiledMapKeeper::prepareNode()
 
   log("%s: borders calculated as %f,%f, %f, %f ", __func__,
       northBorder, southBorder, westBorder, eastBorder);
-
-  // --- hide "meta" layer  --------------------
-  TMXLayer *layer = workNode->getLayer(metaLayerName);
-
-  if (layer != nullptr) {
-    layer->setVisible(false);
-  }
-  else {
-    log("%s: Warning: '%s' layer not found in '%s'", __func__,
-        metaLayerName.c_str(), mapFilename.c_str());
-  }
-
-  // --- finally
-  return workNode;
 }
