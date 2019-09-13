@@ -34,9 +34,6 @@ bool TiledMapLoader::findStartPositions() {
   }
 
   // perform Search
-  dogStartX = 10; // TODO remove
-  dogStartY = 12;
-
   bool dogPosFound    = false;
   bool farmerPosFound = false;
 
@@ -83,17 +80,16 @@ bool TiledMapLoader::findStartPositions() {
         dogStartY   = mapSize.height - tileY - 1;
         break;
 
+      case MTC_FFD_HOME:
+        std::pair<int, int> p;
+        p.first  = tileX;
+        p.second = mapSize.height - tileY - 1;
+        homePositions.push_back(p);
+        break;
+
         // Note there is no suitable default action here
         // default:
       }
-
-      if (dogPosFound && farmerPosFound) {
-        break;
-      }
-    }
-
-    if (dogPosFound && farmerPosFound) {
-      break;
     }
   }
 
@@ -122,6 +118,13 @@ int TiledMapLoader::getDogStartX() const {
 
 int TiledMapLoader::getDogStartY() const {
   return dogStartY;
+}
+
+// =============================================================================
+
+std::vector<std::pair<int, int> >
+TiledMapLoader::getHomePositions() const {
+  return homePositions;
 }
 
 // =============================================================================

@@ -24,6 +24,7 @@ enum MetaTileCode {
   // following codes are specially for "FarmerFindsDog"
   MTC_FFD_DOG_START    = MTC_POINT_A,
   MTC_FFD_FARMER_START = MTC_POINT_B,
+  MTC_FFD_HOME         = MTC_POINT_C,
   MTC_FFD_UNPASSABLE   = MTC_RED,
 
   // finally

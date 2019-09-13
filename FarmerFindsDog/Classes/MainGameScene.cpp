@@ -73,6 +73,9 @@ bool MainGameScene::initFarmerKeeper(TiledMapLoader *const mapLoader) {
 
   currentFarmerX = mapLoader->getFarmerStartX();
   currentFarmerY = mapLoader->getFarmerStartY();
+
+  homePositions = mapLoader->getHomePositions();
+
   const Vec2 tmpp = tiledMapKeeper->getPositionForMapItem(currentFarmerX, currentFarmerY);
   farmerKeeper->doStraightMove(tmpp);
 
@@ -99,7 +102,14 @@ bool MainGameScene::initDogKeeper(TiledMapLoader *const mapLoader) {
   CallFunc *cf = CallFunc::create([this]() {
     // this->processFarmerMovementFinish();
     log("%s: init dog move", __func__);
-    this->makeDogMove();
+
+    if ((DB_GETS_HOME == dogBehavior) &&
+        (currentDogX == dogTargetX) && (currentDogY == dogTargetY)) {
+      log("%s: Dog is at home", __func__);
+    }
+    else {
+      this->makeDogMove();
+    }
   });
 
   this->runAction(RepeatForever::create(Sequence::create(pause, cf, NULL)));
@@ -208,6 +218,51 @@ MoveDirection MainGameScene::generateNextDogMoveOnFollows() {
 
 // =============================================================================
 
+MoveDirection MainGameScene::generateNextDogMoveOnGoHome() {
+  // Tries to get close to farmer on X
+  const int diffX[] = { 0, 0, -1, 1, 0 };
+  const int diffY[] = { 1, -1, 0, 0, 0 };
+
+  MoveDirection result = MOVE_DIRECTION_NO_MOVE;
+
+  if (abs(currentDogX - dogTargetX) > 0) {
+    if (currentDogX > dogTargetX) {
+      result = MOVE_DIRECTION_LEFT;
+    }
+    else {
+      result = MOVE_DIRECTION_RIGHT;
+    }
+
+    const int newTileX = currentDogX + diffX[(int)result];
+
+    if (!tiledMapKeeper->isBadMove(newTileX, currentDogY)) {
+      return result;
+    }
+  }
+
+  // if impossible or already on X, tries to get close on Y
+  if (abs(currentDogY - dogTargetY) > 0) {
+    if (currentDogY > dogTargetY) {
+      result = MOVE_DIRECTION_DOWN;
+    }
+    else {
+      result = MOVE_DIRECTION_UP;
+    }
+
+    const int newTileY = currentDogY + diffY[(int)result];
+
+    if (!tiledMapKeeper->isBadMove(currentDogX, newTileY)) {
+      return result;
+    }
+  }
+
+  // if impossible, move as random
+  log("%s: does not know what to do, move random", __func__);
+  return generateNextDogMoveOnRandom();
+}
+
+// =============================================================================
+
 MoveDirection MainGameScene::generateNextDogMove() {
   MoveDirection result = MOVE_DIRECTION_NO_MOVE;
 
@@ -222,6 +277,10 @@ MoveDirection MainGameScene::generateNextDogMove() {
 
   case DB_ROTATES:
     result = generateNextDogMoveOnRotates();
+    break;
+
+  case DB_GETS_HOME:
+    result = generateNextDogMoveOnGoHome();
     break;
 
   default:
@@ -332,8 +391,12 @@ void MainGameScene::onKeyPressedScene(EventKeyboard::KeyCode keyCode,  Event *ev
     candidateMoveDirection = MOVE_DIRECTION_NO_MOVE;
     break;
 
-  case EventKeyboard::KeyCode::KEY_C:
+  case EventKeyboard::KeyCode::KEY_F:
     processFarmerCall();
+    break;
+
+  case EventKeyboard::KeyCode::KEY_H:
+    processGoHomeRequest();
     break;
 
   case EventKeyboard::KeyCode::KEY_X:
@@ -364,6 +427,33 @@ void MainGameScene::processFarmerCall() {
   // else
   log("%s: call was accepted", __func__);
   dogBehavior = DB_FOLLOWS;
+}
+
+// =============================================================================
+
+void MainGameScene::processGoHomeRequest() {
+  bool isNearHome = false;
+
+  for (auto hpos: homePositions) {
+    const int absDiffX = abs(hpos.first - currentDogX);
+    const int absDiffY = abs(hpos.second - currentDogY);
+
+    const int distanceThreshold = 3;
+
+    if ((absDiffX <= distanceThreshold) && (absDiffY <= distanceThreshold)) {
+      dogTargetX = hpos.first;
+      dogTargetY = hpos.second;
+      isNearHome = true;
+      break;
+    }
+  }
+
+  if (isNearHome) {
+    dogBehavior = DB_GETS_HOME;
+  }
+  else {
+    log("%s: too far from all %d home locations", __func__, (int)homePositions.size());
+  }
 }
 
 // =============================================================================

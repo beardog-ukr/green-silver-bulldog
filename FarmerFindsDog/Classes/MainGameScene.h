@@ -50,21 +50,29 @@ protected:
   bool dogIsActive;
   void makeDogMove();
 
+  std::vector<std::pair<int, int> >homePositions;
+
   enum DogBehavior {
     DB_ROTATES = 0, // "Debug" variant, make it do rounds
     DB_RANDOM,      // "True" variant, pure random
-    DB_FOLLOWS
+    DB_FOLLOWS,
+    DB_GETS_HOME,
   };
   DogBehavior dogBehavior;
+
+  int dogTargetX;
+  int dogTargetY;
 
   // int lastDogMove;
   MoveDirection generateNextDogMove();
   MoveDirection generateNextDogMoveOnFollows();
+  MoveDirection generateNextDogMoveOnGoHome();
   MoveDirection generateNextDogMoveOnRandom();
   MoveDirection generateNextDogMoveOnRotates();
 
   //
   void          processFarmerCall();
+  void          processGoHomeRequest();
 
   void          onKeyPressedScene(EventKeyboard::KeyCode keyCode,
                                   Event                 *event);
