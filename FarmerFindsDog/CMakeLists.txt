@@ -57,6 +57,7 @@ list(APPEND GAME_SOURCE
      Classes/TiledMapKeeper.cpp
      Classes/TiledMapLoader.cpp
      Classes/menu/MainMenuScene.cpp
+     Classes/menu/TiledBackgroundNode.cpp
      )
 list(APPEND GAME_HEADER
      Classes/AppDelegate.h
@@ -70,6 +71,7 @@ list(APPEND GAME_HEADER
      Classes/TiledMapKeeper.h
      Classes/TiledMapLoader.h
      Classes/menu/MainMenuScene.h
+     Classes/menu/TiledBackgroundNode.h
      )
 
 if(ANDROID)

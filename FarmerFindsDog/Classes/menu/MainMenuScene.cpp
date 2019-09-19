@@ -1,4 +1,5 @@
 #include "MainMenuScene.h"
+#include "menu/TiledBackgroundNode.h"
 
 // #include "SimpleAudioEngine.h"
 
@@ -26,15 +27,6 @@ bool MainMenuScene::init() {
     return false;
   }
 
-  initKeyboardProcessing();
-
-  // --- finally
-  return true;
-}
-
-// --- -----------------------------------------------------------------------
-
-bool MainMenuScene::initBackground() {
   Sprite *sprite = Sprite::create("gui/menu_panel.png");
 
   if (nullptr == sprite) {
@@ -45,8 +37,26 @@ bool MainMenuScene::initBackground() {
   Vec2 origin      = Director::getInstance()->getVisibleOrigin();
   sprite->setPosition(Vec2(visibleSize.width / 2 + origin.x,
                            visibleSize.height / 2 + origin.y));
-
   addChild(sprite);
+
+  initKeyboardProcessing();
+
+  // --- finally
+  return true;
+}
+
+// --- -----------------------------------------------------------------------
+
+bool MainMenuScene::initBackground() {
+  const Size visibleSize = Director::getInstance()->getVisibleSize();
+
+  Node *const backgroundNode = TiledBackgroundNode::create(visibleSize);
+
+  if (nullptr == backgroundNode) {
+    return false;
+  }
+
+  addChild(backgroundNode);
 
   return true;
 }
