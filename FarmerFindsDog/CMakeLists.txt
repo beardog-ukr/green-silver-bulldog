@@ -56,6 +56,7 @@ list(APPEND GAME_SOURCE
      Classes/NineNutsLogger.cpp
      Classes/TiledMapKeeper.cpp
      Classes/TiledMapLoader.cpp
+     Classes/menu/MainMenuScene.cpp
      )
 list(APPEND GAME_HEADER
      Classes/AppDelegate.h
@@ -68,6 +69,7 @@ list(APPEND GAME_HEADER
      Classes/NineNutsLogger.h
      Classes/TiledMapKeeper.h
      Classes/TiledMapLoader.h
+     Classes/menu/MainMenuScene.h
      )
 
 if(ANDROID)
