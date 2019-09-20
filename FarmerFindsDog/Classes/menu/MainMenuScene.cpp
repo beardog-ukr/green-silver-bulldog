@@ -5,6 +5,9 @@ using namespace cocos2d;
 using namespace cocos2d::ui;
 using namespace std;
 
+
+static const string chechboxOffFilename = "gui/chb_off.png";
+static const string chechboxOnFilename  = "gui/chb_on.png";
 static const string panelFileName       = "gui/menu_panel.png";
 static const string activePanelFileName = "gui/menu_panel_active.png";
 static const string fontForButtons      = "fonts/Mr_JUNKER_MSX.ttf";
@@ -211,6 +214,7 @@ Node * MainMenuScene::prepareOptionsMenu() {
 
   resultNode->setContentSize(resultSize);
 
+  // --- "Key bindings" button
   Button *btn = Button::create(panelFileName, activePanelFileName);
   btn->setTitleText("Key bindings");
   btn->setTitleFontName("fonts/Mr_JUNKER_MSX.ttf");
@@ -223,6 +227,38 @@ Node * MainMenuScene::prepareOptionsMenu() {
   int buttonYPos = resultSize.height - (resultSize.height / 4);
   btn->setPosition(Vec2(buttonXPos, buttonYPos));
   resultNode->addChild(btn);
+
+  // --- "Fog of war" checkbox
+  Sprite *containerFoW = Sprite::create(panelFileName);
+
+  if (containerFoW == nullptr) {     // bad idea of error processing
+    containerFoW = Sprite::create(); // but better than nothing
+    containerFoW->setContentSize(btn->getContentSize());
+  }
+  const Size containerFoWSize = containerFoW->getContentSize();
+
+  // const int checkboxLevel = resultSize.height / 2;
+  CheckBox *checkBox = CheckBox::create(chechboxOffFilename, chechboxOnFilename);
+  checkBox->setPosition(Vec2(containerFoWSize.width / 5, containerFoWSize.height / 2));
+  containerFoW->addChild(checkBox);
+
+  const string textFoW = "Fog of war (TBD)";
+  Label *labelFoW      = Label::createWithTTF(textFoW, fontForButtons, 24);
+
+  if (labelFoW == nullptr)  {
+    labelFoW = Label::create();
+    labelFoW->setString(textFoW);
+  }
+
+  // labelFoW->setTextColor(Color4B(200, 200, 200, 255));
+
+  labelFoW->setPosition(Vec2(3 * (containerFoWSize.width / 5),
+                             containerFoWSize.height / 2));
+  containerFoW->addChild(labelFoW);
+
+  containerFoW->setPosition(Vec2(resultSize.width / 2, resultSize.height / 2));
+  resultNode->addChild(containerFoW);
+
 
   resultNode->setAnchorPoint(Vec2(0.5, 0.5));
 
