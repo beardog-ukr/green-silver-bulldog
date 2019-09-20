@@ -49,27 +49,27 @@ endif()
 # add cross-platforms source files and header files
 list(APPEND GAME_SOURCE
      Classes/AppDelegate.cpp
-     Classes/CharacterKeeper.cpp
-     Classes/DogKeeper.cpp
-     Classes/FarmerKeeper.cpp
-     Classes/MainGameScene.cpp
      Classes/NineNutsLogger.cpp
-     Classes/TiledMapKeeper.cpp
-     Classes/TiledMapLoader.cpp
+     Classes/game/CharacterKeeper.cpp
+     Classes/game/DogKeeper.cpp
+     Classes/game/FarmerKeeper.cpp
+     Classes/game/MainGameScene.cpp     
+     Classes/game/TiledMapKeeper.cpp
+     Classes/game/TiledMapLoader.cpp
      Classes/menu/MainMenuScene.cpp
      Classes/menu/TiledBackgroundNode.cpp
      )
 list(APPEND GAME_HEADER
      Classes/AppDelegate.h
-     Classes/CharacterKeeper.h
-     Classes/DogKeeper.h
-     Classes/FarmerKeeper.h
-     Classes/MainGameScene.h
-     Classes/MetaTileCode.h
-     Classes/MoveDirection.h
      Classes/NineNutsLogger.h
-     Classes/TiledMapKeeper.h
-     Classes/TiledMapLoader.h
+     Classes/game/CharacterKeeper.h
+     Classes/game/DogKeeper.h
+     Classes/game/FarmerKeeper.h
+     Classes/game/MainGameScene.h
+     Classes/game/MetaTileCode.h
+     Classes/game/MoveDirection.h     
+     Classes/game/TiledMapKeeper.h
+     Classes/game/TiledMapLoader.h
      Classes/menu/MainMenuScene.h
      Classes/menu/TiledBackgroundNode.h
      )

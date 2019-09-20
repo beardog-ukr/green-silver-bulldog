@@ -1,6 +1,6 @@
 #include "MainMenuScene.h"
 #include "menu/TiledBackgroundNode.h"
-#include "MainGameScene.h"
+#include "game/MainGameScene.h"
 
 using namespace cocos2d;
 using namespace cocos2d::ui;
