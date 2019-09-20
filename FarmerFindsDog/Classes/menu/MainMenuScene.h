@@ -19,6 +19,7 @@ protected:
 
   cocos2d::Node* prepareBasicMenu();
   cocos2d::Node* prepareOptionsMenu();
+  cocos2d::Node* prepareKeyBindingsMenu();
 
   cocos2d::Node *currentMenu;
 
@@ -47,6 +48,8 @@ protected:
   void processNewGameRq(cocos2d::Ref *pSender);
   void processOptionsRq(cocos2d::Ref *pSender);
   void processExitRq(cocos2d::Ref *pSender);
+
+  void processKeyBindingsRq(Ref *pSender);
 
   void onKeyPressedScene(cocos2d::EventKeyboard::KeyCode keyCode,
                          cocos2d::Event                 *event);

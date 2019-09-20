@@ -109,7 +109,7 @@ void MainMenuScene::onKeyPressedScene(EventKeyboard::KeyCode keyCode,  Event *ev
 // --- -----------------------------------------------------------------------
 
 Node * MainMenuScene::prepareBasicMenu()  {
-  // --- prepae result node
+  // --- prepare result node
   Node *resultNode      = Node::create();
   const Size parentSize = Director::getInstance()->getVisibleSize();
   const Size resultSize(parentSize.width / 2, parentSize.height);
@@ -145,7 +145,57 @@ Node * MainMenuScene::prepareBasicMenu()  {
   buttons[2]->addClickEventListener(CC_CALLBACK_1(MainMenuScene::processExitRq, this));
 
   // --- result position
-  // const Vec2 origin = Director::getInstance()->getVisibleOrigin();
+  resultNode->setAnchorPoint(Vec2(0.5, 0.5));
+
+  // --- finally
+  return resultNode;
+}
+
+// --- -----------------------------------------------------------------------
+
+Node * MainMenuScene::prepareKeyBindingsMenu() {
+  // --- prepare result node
+  Node *resultNode      = Node::create();
+  const Size parentSize = Director::getInstance()->getVisibleSize();
+  const Size resultSize(parentSize.width / 2, parentSize.height);
+
+  resultNode->setContentSize(resultSize);
+
+  // --- prepare buttons
+  const int amountOfButtons = 6;
+  const int buttonXPos      = resultSize.width / 2;
+
+  const int buttonYStep = parentSize.height / (amountOfButtons + 1);
+
+  string  captions[amountOfButtons] = { "Key \"Forward\"",     "Key \"Back\"",
+                                        "Key \"Left\"",        "Key \"Right\"",
+                                        "Key \"Dog, follow\"", "Key \"Dog, go home\""
+  };
+  Button *buttons[amountOfButtons];
+
+  for (int buttonIdx = 0; buttonIdx < amountOfButtons; buttonIdx++) {
+    Button *btn = Button::create(panelFileName, activePanelFileName);
+    btn->setTitleText(captions[buttonIdx]);
+    btn->setTitleFontName(fontForButtons);
+    btn->setTitleFontSize(28);
+
+    int buttonYPos = resultSize.height - buttonYStep * (buttonIdx + 1);
+    btn->setPosition(Vec2(buttonXPos, buttonYPos));
+    resultNode->addChild(btn);
+
+    buttons[buttonIdx] = btn;
+  }
+
+
+  // --- set calbacks for buttons
+  // buttons[0]->addClickEventListener(CC_CALLBACK_1(MainMenuScene::processNewGameRq,
+  // this));
+  // buttons[1]->addClickEventListener(CC_CALLBACK_1(MainMenuScene::processOptionsRq,
+  // this));
+  // buttons[2]->addClickEventListener(CC_CALLBACK_1(MainMenuScene::processExitRq,
+  // this));
+
+  // --- result position
   resultNode->setAnchorPoint(Vec2(0.5, 0.5));
 
   // --- finally
@@ -165,6 +215,8 @@ Node * MainMenuScene::prepareOptionsMenu() {
   btn->setTitleText("Key bindings");
   btn->setTitleFontName("fonts/Mr_JUNKER_MSX.ttf");
   btn->setTitleFontSize(28);
+
+  btn->addClickEventListener(CC_CALLBACK_1(MainMenuScene::processKeyBindingsRq, this));
 
   int buttonXPos = resultSize.width / 2;
 
@@ -240,6 +292,18 @@ void MainMenuScene::processNewGameRq(Ref *pSender) {
   log("%s: here", __func__);
 
   // call new scene here
+}
+
+// --- -----------------------------------------------------------------------
+
+void MainMenuScene::processKeyBindingsRq(Ref *pSender) {
+  log("%s: here", __func__);
+
+  Node *const kbMenu = prepareKeyBindingsMenu();
+  kbMenu->setPosition(positionBeforeIn);
+  addChild(kbMenu);
+
+  switchStates(kbMenu, BBT_OPTIONS);
 }
 
 // --- -----------------------------------------------------------------------
