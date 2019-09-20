@@ -1,5 +1,6 @@
 #include "MainMenuScene.h"
 #include "menu/TiledBackgroundNode.h"
+#include "MainGameScene.h"
 
 using namespace cocos2d;
 using namespace cocos2d::ui;
@@ -327,7 +328,8 @@ void MainMenuScene::processExitRq(Ref *pSender) {
 void MainMenuScene::processNewGameRq(Ref *pSender) {
   log("%s: here", __func__);
 
-  // call new scene here
+  Scene *mgs = MainGameScene::createScene();
+  Director::getInstance()->replaceScene(mgs);
 }
 
 // --- -----------------------------------------------------------------------
