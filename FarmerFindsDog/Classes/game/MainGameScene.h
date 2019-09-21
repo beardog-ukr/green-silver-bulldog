@@ -16,10 +16,14 @@ public:
 
   virtual bool  init();
 
+  void          setImmediateExit(const bool performExit);
+
   // implement the "static create()" method manually
   CREATE_FUNC(MainGameScene);
 
 protected:
+
+  bool needsImmediateExit;
 
   DogKeeper *dogKeeper;
   FarmerKeeper *farmerKeeper;
@@ -44,6 +48,7 @@ protected:
   bool initFarmerKeeper(TiledMapLoader *const mapLoader);
   bool initDogKeeper(TiledMapLoader *const mapLoader);
   bool initTiledMapKeeper(TiledMapLoader *const mapLoader);
+
 
   int currentDogX;
   int currentDogY;

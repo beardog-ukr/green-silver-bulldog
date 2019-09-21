@@ -5,6 +5,9 @@
 #include "TiledMapKeeper.h"
 #include "TiledMapLoader.h"
 
+#include "menu/InstantMenuScene.h"
+#include "menu/MainMenuScene.h"
+
 #include "SimpleAudioEngine.h"
 
 USING_NS_CC;
@@ -25,9 +28,12 @@ bool MainGameScene::init()
     return false;
   }
 
+  // --- constructor things
+  needsImmediateExit = false;
   TiledMapLoader *mapLoader = nullptr;
   bool result               = true;
 
+  // --- init
   do {
     mapLoader = new TiledMapLoader();
 
@@ -59,6 +65,14 @@ bool MainGameScene::init()
 
   farmerIsMoving         = false;
   candidateMoveDirection = MOVE_DIRECTION_NO_MOVE;
+
+  setOnEnterCallback([this]() {
+    if (this->needsImmediateExit) {
+      log("%s: needs immediate exit", __func__);
+      Scene *mms = MainMenuScene::createScene();
+      Director::getInstance()->replaceScene(mms);
+    }
+  });
 
   return true;
 }
@@ -399,6 +413,24 @@ void MainGameScene::onKeyPressedScene(EventKeyboard::KeyCode keyCode,  Event *ev
     processGoHomeRequest();
     break;
 
+  case EventKeyboard::KeyCode::KEY_J: {
+    log("%s: Showing interrupt menu.", __func__);
+
+    const Size visibleSize = Director::getInstance()->getVisibleSize();
+    RenderTexture *rt      = RenderTexture::create(visibleSize.width, visibleSize.height);
+
+    rt->begin();
+    this->visit();
+    rt->end();
+    rt->getSprite()->setAnchorPoint(Vec2(0, 0));
+
+    Scene *ims = InstantMenuScene::create(this, rt);
+
+    Director::getInstance()->pushScene(ims);
+
+    break;
+  }
+
   case EventKeyboard::KeyCode::KEY_X:
     log("%s: Need to get out.", __func__);
 
@@ -486,4 +518,10 @@ void MainGameScene::processFarmerMovementFinish() {
       farmerKeeper->doSetIdle();
     }
   }
+}
+
+// --- -----------------------------------------------------------------------
+
+void MainGameScene::setImmediateExit(const bool performExit) {
+  needsImmediateExit = performExit;
 }
