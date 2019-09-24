@@ -50,6 +50,7 @@ endif()
 list(APPEND GAME_SOURCE
      Classes/AppDelegate.cpp
      Classes/NineNutsLogger.cpp
+     Classes/common/GameSettings.cpp
      Classes/game/CharacterKeeper.cpp
      Classes/game/DogKeeper.cpp
      Classes/game/FarmerKeeper.cpp
@@ -63,6 +64,7 @@ list(APPEND GAME_SOURCE
 list(APPEND GAME_HEADER
      Classes/AppDelegate.h
      Classes/NineNutsLogger.h
+     Classes/common/GameSettings.h
      Classes/game/CharacterKeeper.h
      Classes/game/DogKeeper.h
      Classes/game/FarmerKeeper.h

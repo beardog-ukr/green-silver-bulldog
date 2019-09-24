@@ -1,0 +1,14 @@
+{
+	"options": {
+		"key_bindings": [{
+				"action": "go_up",
+				"key": "0"
+			},
+			{
+				"action": "go_down",
+				"key": "1"
+			}
+		],
+		"fog_of_war": "1"
+	}
+}

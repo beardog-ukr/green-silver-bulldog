@@ -1,16 +1,21 @@
 #include "MainGameScene.h"
 
+#include "json/document-wrapper.h"
+
+
 #include "DogKeeper.h"
 #include "FarmerKeeper.h"
 #include "TiledMapKeeper.h"
 #include "TiledMapLoader.h"
 
+#include "common/GameSettings.h"
 #include "menu/InstantMenuScene.h"
 #include "menu/MainMenuScene.h"
 
 #include "SimpleAudioEngine.h"
 
-USING_NS_CC;
+using namespace cocos2d;
+using namespace std;
 
 // =================================================================================================
 
@@ -32,6 +37,8 @@ bool MainGameScene::init()
   needsImmediateExit = false;
   TiledMapLoader *mapLoader = nullptr;
   bool result               = true;
+
+  readConfig();
 
   // --- init
   do {
@@ -134,8 +141,8 @@ bool MainGameScene::initDogKeeper(TiledMapLoader *const mapLoader) {
 // =============================================================================
 
 bool MainGameScene::initTiledMapKeeper(TiledMapLoader *const mapLoader) {
-  std::string  mapFilename = "tiles/m03.tmx";
-  TMXTiledMap *nd          = mapLoader->loadFile(mapFilename);
+  string mapFilename = "tiles/m03.tmx";
+  TMXTiledMap *nd    = mapLoader->loadFile(mapFilename);
 
   if (nd == nullptr) {
     return false;
@@ -378,46 +385,58 @@ void MainGameScene::moveFarmerForced(const MoveDirection moveDirection) {
   farmerKeeper->doMove(newPos, moveDirection, cf);
 }
 
-// =============================================================================
+// --- -----------------------------------------------------------------------
 
-void MainGameScene::onKeyPressedScene(EventKeyboard::KeyCode keyCode,  Event *event)
-{
+void MainGameScene::onKeyPressedScene(EventKeyboard::KeyCode keyCode,  Event *event) {
   log("%s: processing key %d pressed", __func__, (int)keyCode);
 
-  switch (keyCode) {
-  case EventKeyboard::KeyCode::KEY_UP_ARROW:
+  GameSettings  *gameSettings   = GameSettings::getInstance();
+  RequiredAction requiredAction = gameSettings->getActionForKeyCode(keyCode);
+
+
+  switch (requiredAction) {
+  case RequiredAction::RA_GO_UP:
     moveFarmer(MOVE_DIRECTION_UP);
     break;
 
-  case EventKeyboard::KeyCode::KEY_DOWN_ARROW:
+  case RA_GO_DOWN:
     moveFarmer(MOVE_DIRECTION_DOWN);
     break;
 
-  case EventKeyboard::KeyCode::KEY_LEFT_ARROW:
+  case RA_GO_LEFT:
     moveFarmer(MOVE_DIRECTION_LEFT);
     break;
 
-  case EventKeyboard::KeyCode::KEY_RIGHT_ARROW:
+  case RA_GO_RIGHT:
     moveFarmer(MOVE_DIRECTION_RIGHT);
     break;
 
-  case EventKeyboard::KeyCode::KEY_SPACE:
+  case RA_STOP_MOVING:
     candidateMoveDirection = MOVE_DIRECTION_NO_MOVE;
     break;
 
-  case EventKeyboard::KeyCode::KEY_F:
+  case RA_FOLLOW:
     processFarmerCall();
     break;
 
-  case EventKeyboard::KeyCode::KEY_H:
+  case RA_GO_HOME:
     processGoHomeRequest();
     break;
 
-  case EventKeyboard::KeyCode::KEY_J: {
+  default:
+    doHardcodedKeyProcessing(keyCode);
+  }
+}
+
+// --- -----------------------------------------------------------------------
+
+void MainGameScene::doHardcodedKeyProcessing(const EventKeyboard::KeyCode keyCode) {
+  if (keyCode == EventKeyboard::KeyCode::KEY_J) {
     log("%s: Showing interrupt menu.", __func__);
 
     const Size visibleSize = Director::getInstance()->getVisibleSize();
-    RenderTexture *rt      = RenderTexture::create(visibleSize.width, visibleSize.height);
+    RenderTexture *rt      = RenderTexture::create(visibleSize.width,
+                                                   visibleSize.height);
 
     rt->begin();
     this->visit();
@@ -427,23 +446,16 @@ void MainGameScene::onKeyPressedScene(EventKeyboard::KeyCode keyCode,  Event *ev
     Scene *ims = InstantMenuScene::create(this, rt);
 
     Director::getInstance()->pushScene(ims);
-
-    break;
   }
-
-  case EventKeyboard::KeyCode::KEY_X:
+  else if (keyCode == EventKeyboard::KeyCode::KEY_X) {
     log("%s: Need to get out.", __func__);
 
     // Close the cocos2d-x game scene and quit the application
     Director::getInstance()->end();
-    break;
-
-  default:
-    log("%s: key %d will be ignored", __func__, (int)keyCode);
   }
 }
 
-// =============================================================================
+// --- -----------------------------------------------------------------------
 
 void MainGameScene::processFarmerCall() {
   const int absDiffX = abs(currentDogX - currentFarmerX);
@@ -488,7 +500,7 @@ void MainGameScene::processGoHomeRequest() {
   }
 }
 
-// =============================================================================
+// --- -----------------------------------------------------------------------
 
 void MainGameScene::processFarmerMovementFinish() {
   log("%s: here", __func__);
@@ -525,3 +537,35 @@ void MainGameScene::processFarmerMovementFinish() {
 void MainGameScene::setImmediateExit(const bool performExit) {
   needsImmediateExit = performExit;
 }
+
+// --- -----------------------------------------------------------------------
+
+void MainGameScene::readConfig() {
+  log("%s: here", __func__);
+  const string fn("fff.txt");
+
+  auto fileUtils = FileUtils::getInstance();
+
+
+  log("%s: will search for files in:", __func__);
+
+  for (string s: fileUtils->getSearchPaths()) {
+    log("%s:  ---> %s", __func__, s.c_str());
+  }
+  log("%s: done listing pathes", __func__);
+
+  string fnfp = fileUtils->fullPathForFilename(fn);
+
+  if (!fileUtils->isFileExist(fn)) {
+    log("%s: file does not exist (%s)", __func__, fnfp.c_str());
+    return;
+  }
+
+  string fnContent = fileUtils->getStringFromFile(fnfp);
+  log("%s: received content:\n %s \n", __func__, fnContent.c_str());
+
+  rapidjson::Document jsonReader;
+  jsonReader.Parse(fnContent.c_str());
+}
+
+// --- -----------------------------------------------------------------------
