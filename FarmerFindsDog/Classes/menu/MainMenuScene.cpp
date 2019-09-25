@@ -274,6 +274,7 @@ Node * MainMenuScene::prepareOptionsMenu() {
   CheckBox *checkBox = CheckBox::create(chechboxOffFilename, chechboxOnFilename);
   checkBox->setPosition(Vec2(containerFoWSize.width / 5, containerFoWSize.height / 2));
   checkBox->setSelectedState(GameSettings::getInstance()->getNeedsFogOfWar());
+  checkBox->addEventListener(CC_CALLBACK_2(MainMenuScene::processFOWEvent, this));
   containerFoW->addChild(checkBox);
 
   const char *const textFoW = "Fog of war (TBD)";
@@ -349,6 +350,19 @@ void MainMenuScene::processBackButtonCall(const BackButtonTarget backButtonTarge
   addChild(newMenu);
 
   switchStates(newMenu, newBBT);
+}
+
+// --- -----------------------------------------------------------------------
+
+void MainMenuScene::processFOWEvent(Ref *, CheckBox::EventType type) {
+  GameSettings *gs = GameSettings::getInstance();
+
+  if (CheckBox::EventType::SELECTED == type) {
+    gs->setNeedsFogOfWar(true);
+  }
+  else if (CheckBox::EventType::UNSELECTED == type) {
+    gs->setNeedsFogOfWar(false);
+  }
 }
 
 // --- -----------------------------------------------------------------------

@@ -1,10 +1,19 @@
 #include "common/GameSettings.h"
 
 #include "json/document-wrapper.h"
+#include "json/prettywriter.h"
+#include "json/stringbuffer.h"
+
+#include <fstream> // ofstream
 
 #include "cocos2d.h"
 using namespace cocos2d;
 using namespace std;
+
+const char *const keyFogOfWar           = "fog_of_war";
+const char *const keyKeyBindings        = "key_bindings";
+const char *const keyKeyBindingsAction  = "action";
+const char *const keyKeyBindingsKeyCode = "key_code";
 
 const string GameSettings::settingsFileName = "game_settings.json";
 
@@ -20,11 +29,6 @@ GameSettings * GameSettings::getInstance() {
 
 GameSettings::GameSettings() {
   log("%s: here", __func__);
-
-
-  applyDefaultKeyboardSettings(); // TODO remove this line when file import will
-                                  // be completed
-  applyDefaultOtherSettings();
 
   if (!loadSettingsFromFile()) {
     applyDefaultKeyboardSettings();
@@ -97,12 +101,12 @@ EventKeyboard::KeyCode GameSettings::getKeyCodeForAction(const RequiredAction ra
 bool GameSettings::loadSettingsFromFile() {
   auto fileUtils = FileUtils::getInstance();
 
-  log("%s: will search for files in:", __func__);
+  // log("%s: will search for files in:", __func__);
 
-  for (string s: fileUtils->getSearchPaths()) {
-    log("%s:  ---> %s", __func__, s.c_str());
-  }
-  log("%s: done listing pathes", __func__);
+  // for (string s: fileUtils->getSearchPaths()) {
+  //   log("%s:  ---> %s", __func__, s.c_str());
+  // }
+  // log("%s: done listing pathes", __func__);
 
   string fnfp = fileUtils->fullPathForFilename(settingsFileName);
 
@@ -118,7 +122,6 @@ bool GameSettings::loadSettingsFromFile() {
   reader.Parse(fnContent.c_str());
 
   // --- "Fog of War" setting
-  const char *const keyFogOfWar = "fog_of_war";
 
   if ((reader.HasMember(keyFogOfWar) && reader[keyFogOfWar].IsBool())) {
     needsFogOfWar = reader[keyFogOfWar].GetBool();
@@ -129,16 +132,27 @@ bool GameSettings::loadSettingsFromFile() {
   }
 
   // --- keyboard settings
-
-  const char *const keyKeyBindings = "key_bindings";
-
   if ((reader.HasMember(keyKeyBindings) && reader[keyKeyBindings].IsArray())) {
     const rapidjson::Value& kbArrValue = reader[keyKeyBindings];
     log("%s: setting '%s' is array of %d values", __func__,
         keyKeyBindings, kbArrValue.Size());
 
-    // for (SizeType i = 0; i < a.Size(); i++) // Uses SizeType instead of
-    // size_t
+    for (rapidjson::SizeType i = 0; i < kbArrValue.Size(); i++) {
+      const rapidjson::Value& kbArrItem = kbArrValue[i];
+
+      if ((kbArrItem.HasMember(keyKeyBindingsAction) &&
+           kbArrItem[keyKeyBindingsAction].IsInt())) {
+        requiredActions[i] = (RequiredAction)kbArrItem[keyKeyBindingsAction].GetInt();
+        log("%s: received '%d' action", __func__, (int)requiredActions[i]);
+      }
+
+      if ((kbArrItem.HasMember(keyKeyBindingsKeyCode) &&
+           kbArrItem[keyKeyBindingsKeyCode].IsInt())) {
+        keyCodes[i] = (EventKeyboard::KeyCode)kbArrItem[keyKeyBindingsKeyCode].GetInt();
+        log("%s: received '%d' key code", __func__, (int)keyCodes[i]);
+      }
+    }
+
     // printf("a[%d] = %d\n", i, a[i].GetInt());
   }
   else {
@@ -153,13 +167,68 @@ bool GameSettings::loadSettingsFromFile() {
 
 // --- -----------------------------------------------------------------------
 
-bool GameSettings::getNeedsFogOfWar() {
+bool GameSettings::getNeedsFogOfWar() const {
   return needsFogOfWar;
 }
 
 // --- -----------------------------------------------------------------------
 
 bool GameSettings::saveSettings() {
+  // --- init
+  rapidjson::StringBuffer s;
+
+  rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(s);
+
+  writer.StartObject();
+
+  // --- Fog of war
+  writer.Key(keyFogOfWar);
+  writer.Bool(needsFogOfWar);
+
+  // --- Key bindings
+  writer.Key(keyKeyBindings);
+  writer.StartArray();
+
+  for (int i = 0; i < RA_TOTAL_AMOUNT; i++) {
+    writer.StartObject();
+    writer.Key(keyKeyBindingsAction);
+    writer.Int((int)requiredActions[i]);
+    writer.Key(keyKeyBindingsKeyCode);
+    writer.Int((int)keyCodes[i]);
+    writer.EndObject();
+  }
+
+  writer.EndArray();
+  writer.EndObject();
+
+  auto fileUtils = FileUtils::getInstance();
+
+  // const vector <string> sp = fileUtils->getSearchPaths()
+  // for (string s: sp) {
+  //   log("%s:  ---> %s", __func__, s.c_str());
+  // }
+  // log("%s: done listing pathes", __func__);
+
+  string fnfp = fileUtils->fullPathForFilename(settingsFileName);
+
+  if (fnfp.empty()) {
+    const vector<string> sp = fileUtils->getSearchPaths();
+    fnfp = sp.front() + "/" + settingsFileName;
+  }
+
+  ofstream of(fnfp, std::ofstream::out);
+  of << s.GetString();
+
+  of.close();
+
+  if (!of.good()) {
+    log("%s:Can't write the JSON string to the file '%s'", __func__, fnfp.c_str());
+  }
+  else
+  {
+    log("%s: saves to file %s", __func__, fnfp.c_str());
+  }
+
   return true;
 }
 
@@ -176,77 +245,10 @@ void GameSettings::setKeyCodeForAction(const EventKeyboard::KeyCode keyCode,
 }
 
 // --- -----------------------------------------------------------------------
-// --- -----------------------------------------------------------------------
-// --- -----------------------------------------------------------------------
 
-string keyCodeToString(const cocos2d::EventKeyboard::KeyCode keyCode) {
-  std::map<cocos2d::EventKeyboard::KeyCode, std::string> c2s;
-
-  c2s.insert({ EventKeyboard::KeyCode::KEY_UP_ARROW, "UP" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_DOWN_ARROW, "DOWN" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_LEFT_ARROW, "LEFT" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_RIGHT_ARROW, "RIGHT" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_A, "A" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_B, "B" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_C, "C" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_D, "D" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_E, "E" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_F, "F" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_G, "G" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_H, "H" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_I, "I" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_J, "J" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_K, "K" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_L, "L" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_M, "M" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_N, "N" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_O, "O" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_P, "P" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_Q, "Q" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_R, "R" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_S, "S" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_T, "T" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_U, "U" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_V, "V" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_W, "W" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_X, "X" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_Y, "Y" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_Z, "Z" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_0, "0" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_1, "1" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_2, "2" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_3, "3" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_4, "4" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_5, "5" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_6, "6" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_7, "7" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_8, "8" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_9, "9" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_PLUS, "+" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_MINUS, "-" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_COMMA, "," });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_PERIOD, "." });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_SLASH, "/" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_SPACE, "space" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_INSERT, "ins" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_DELETE, "del" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_HOME, "home" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_END, "end" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_TAB, "tab" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_SHIFT, "shft" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_LEFT_BRACE, "[" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_RIGHT_BRACE, "]" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_EQUAL, "=" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_SEMICOLON, ";" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_PG_UP, "pg up" });
-  c2s.insert({ EventKeyboard::KeyCode::KEY_PG_DOWN, "pg d" });
-
-  auto searchResult = c2s.find(keyCode);
-
-  if (searchResult != c2s.end()) {
-    return searchResult->second;
-  }
-
-  // else
-  return "N/A";
+bool GameSettings::setNeedsFogOfWar(const bool inValue) {
+  needsFogOfWar = inValue;
 }
+
+// --- -----------------------------------------------------------------------
+// --- -----------------------------------------------------------------------

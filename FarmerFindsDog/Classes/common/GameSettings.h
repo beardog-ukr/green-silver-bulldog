@@ -30,7 +30,8 @@ public:
                                            const RequiredAction                  action);
 
 
-  bool getNeedsFogOfWar();
+  bool getNeedsFogOfWar() const;
+  bool setNeedsFogOfWar(const bool inValue = true);
 
 
   bool saveSettings();

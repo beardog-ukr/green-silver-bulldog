@@ -52,6 +52,9 @@ protected:
   void processKeyBindingsRq(Ref *pSender);
   void processKeyBindingButtonCall(const int buttonIdx);
 
+  void processFOWEvent(cocos2d::Ref                    *notUsed,
+                       cocos2d::ui::CheckBox::EventType type);
+
   void onKeyPressedScene(cocos2d::EventKeyboard::KeyCode keyCode,
                          cocos2d::Event                 *event);
 };
