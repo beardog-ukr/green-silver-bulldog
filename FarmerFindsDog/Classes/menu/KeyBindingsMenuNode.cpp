@@ -10,6 +10,8 @@ static const string panelFileName       = "gui/menu_panel.png";
 static const string activePanelFileName = "gui/menu_panel_active.png";
 static const string fontForButtons      = "fonts/Mr_JUNKER_MSX.ttf";
 
+string keyCodeToString(const cocos2d::EventKeyboard::KeyCode keyCode);
+
 // --- -----------------------------------------------------------------------
 
 KeyBindingsMenuNode::KeyBindingsMenuNode() {
@@ -97,7 +99,7 @@ void KeyBindingsMenuNode::prepareKeyBindingsNode() {
   // --- result position
   setAnchorPoint(Vec2(0.5, 0.5));
 
-
+  // --- setup keyboard
   auto keyboardListener = EventListenerKeyboard::create();
 
   keyboardListener->onKeyPressed = CC_CALLBACK_2(KeyBindingsMenuNode::onKeyPressedScene, this);
@@ -185,3 +187,74 @@ void KeyBindingsMenuNode::onKeyPressedScene(cocos2d::EventKeyboard::KeyCode keyC
 }
 
 // --- -----------------------------------------------------------------------
+string keyCodeToString(const cocos2d::EventKeyboard::KeyCode keyCode) {
+  std::map<cocos2d::EventKeyboard::KeyCode, std::string> c2s;
+
+  c2s.insert({ EventKeyboard::KeyCode::KEY_UP_ARROW, "UP" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_DOWN_ARROW, "DOWN" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_LEFT_ARROW, "LEFT" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_RIGHT_ARROW, "RIGHT" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_A, "A" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_B, "B" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_C, "C" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_D, "D" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_E, "E" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_F, "F" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_G, "G" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_H, "H" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_I, "I" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_J, "J" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_K, "K" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_L, "L" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_M, "M" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_N, "N" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_O, "O" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_P, "P" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_Q, "Q" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_R, "R" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_S, "S" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_T, "T" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_U, "U" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_V, "V" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_W, "W" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_X, "X" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_Y, "Y" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_Z, "Z" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_0, "0" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_1, "1" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_2, "2" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_3, "3" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_4, "4" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_5, "5" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_6, "6" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_7, "7" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_8, "8" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_9, "9" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_PLUS, "+" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_MINUS, "-" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_COMMA, "," });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_PERIOD, "." });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_SLASH, "/" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_SPACE, "space" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_INSERT, "ins" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_DELETE, "del" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_HOME, "home" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_END, "end" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_TAB, "tab" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_SHIFT, "shft" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_LEFT_BRACE, "[" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_RIGHT_BRACE, "]" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_EQUAL, "=" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_SEMICOLON, ";" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_PG_UP, "pg up" });
+  c2s.insert({ EventKeyboard::KeyCode::KEY_PG_DOWN, "pg d" });
+
+  auto searchResult = c2s.find(keyCode);
+
+  if (searchResult != c2s.end()) {
+    return searchResult->second;
+  }
+
+  // else
+  return "N/A";
+}

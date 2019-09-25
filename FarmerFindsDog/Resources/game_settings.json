@@ -1,14 +1,32 @@
 {
-	"options": {
-		"key_bindings": [{
-				"action": "go_up",
-				"key": "0"
-			},
-			{
-				"action": "go_down",
-				"key": "1"
-			}
-		],
-		"fog_of_war": "1"
-	}
+	"key_bindings": [{
+			"action": 0,
+			"key_code": 28
+		},
+		{
+			"action": 1,
+			"key_code": 29
+		},
+		{
+			"action": 2,
+			"key_code": 26
+		},
+		{
+			"action": 3,
+			"key_code": 27
+		},
+		{
+			"action": 4,
+			"key_code": 59
+		},
+		{
+			"action": 5,
+			"key_code": 129
+		},
+		{
+			"action": 6,
+			"key_code": 131
+		}
+	],
+	"fog_of_war": true
 }

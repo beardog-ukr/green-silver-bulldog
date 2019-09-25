@@ -48,15 +48,12 @@ private:
 
   static const std::string settingsFileName;
 
-
   cocos2d::EventKeyboard::KeyCode keyCodes[RA_TOTAL_AMOUNT];
   RequiredAction requiredActions[RA_TOTAL_AMOUNT];
 
   bool needsFogOfWar;
 
-  void      applyDefaultKeyboardSettings();
-  void      applyDefaultOtherSettings();
-  bool      loadSettingsFromFile();
+  void applyDefaultKeyboardSettings();
+  void applyDefaultOtherSettings();
+  bool loadSettingsFromFile();
 };
-
-std::string keyCodeToString(const cocos2d::EventKeyboard::KeyCode keyCode);
