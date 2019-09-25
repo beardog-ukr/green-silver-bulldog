@@ -1,4 +1,6 @@
 #include "MainMenuScene.h"
+#include "common/GameSettings.h"
+#include "menu/KeyBindingsMenuNode.h"
 #include "menu/TiledBackgroundNode.h"
 #include "game/MainGameScene.h"
 
@@ -157,54 +159,84 @@ Node * MainMenuScene::prepareBasicMenu()  {
 
 // --- -----------------------------------------------------------------------
 
-Node * MainMenuScene::prepareKeyBindingsMenu() {
-  // --- prepare result node
-  Node *resultNode      = Node::create();
-  const Size parentSize = Director::getInstance()->getVisibleSize();
-  const Size resultSize(parentSize.width / 2, parentSize.height);
+// Node * MainMenuScene::prepareKeyBindingsMenu() {
+//   // --- prepare result node
+//   Node *resultNode      = Node::create();
+//   const Size parentSize = Director::getInstance()->getVisibleSize();
+//   const Size resultSize(parentSize.width / 2, parentSize.height);
 
-  resultNode->setContentSize(resultSize);
+//   resultNode->setContentSize(resultSize);
 
-  // --- prepare buttons
-  const int amountOfButtons = 6;
-  const int buttonXPos      = resultSize.width / 2;
+//   // --- prepare buttons
+//   const int amountOfButtons = 7;
+//   const int buttonXPos      = resultSize.width / 2;
 
-  const int buttonYStep = parentSize.height / (amountOfButtons + 1);
+//   const int buttonYStep = parentSize.height / (amountOfButtons + 1);
 
-  string  captions[amountOfButtons] = { "Key \"Forward\"",     "Key \"Back\"",
-                                        "Key \"Left\"",        "Key \"Right\"",
-                                        "Key \"Dog, follow\"", "Key \"Dog, go home\""
-  };
-  Button *buttons[amountOfButtons];
+//   string captions[amountOfButtons] = { "Forward: %s",    "Back: %s",
+//                                        "Left: %s",       "Right: %s",
+//                                        "Stop: %s",
+//                                        "Dog, follow:%s", "Dog, go home:%s"
+//   };
 
-  for (int buttonIdx = 0; buttonIdx < amountOfButtons; buttonIdx++) {
-    Button *btn = Button::create(panelFileName, activePanelFileName);
-    btn->setTitleText(captions[buttonIdx]);
-    btn->setTitleFontName(fontForButtons);
-    btn->setTitleFontSize(28);
+//   RequiredAction actions[amountOfButtons] =
+//   { RequiredAction::RA_GO_UP,       RequiredAction::RA_GO_DOWN,
+//     RequiredAction::RA_GO_LEFT,     RequiredAction::RA_GO_RIGHT,
+//     RequiredAction::RA_STOP_MOVING, RequiredAction::RA_FOLLOW,
+// RequiredAction::RA_GO_HOME };
 
-    int buttonYPos = resultSize.height - buttonYStep * (buttonIdx + 1);
-    btn->setPosition(Vec2(buttonXPos, buttonYPos));
-    resultNode->addChild(btn);
+//   Button *buttons[amountOfButtons];
 
-    buttons[buttonIdx] = btn;
-  }
+//   GameSettings *gs = GameSettings::getInstance();
 
+//   for (int buttonIdx = 0; buttonIdx < amountOfButtons; buttonIdx++) {
+//     Button *btn = Button::create(panelFileName, activePanelFileName);
 
-  // --- set calbacks for buttons
-  // buttons[0]->addClickEventListener(CC_CALLBACK_1(MainMenuScene::processNewGameRq,
-  // this));
-  // buttons[1]->addClickEventListener(CC_CALLBACK_1(MainMenuScene::processOptionsRq,
-  // this));
-  // buttons[2]->addClickEventListener(CC_CALLBACK_1(MainMenuScene::processExitRq,
-  // this));
+//     char buff[100];
+//     snprintf(buff, sizeof(buff), captions[buttonIdx].c_str(),
+//
+//
+//
+//      keyCodeToString(gs->getKeyCodeForAction(actions[buttonIdx])).c_str());
+//     btn->setTitleText(string(buff));
+//     btn->setTitleFontName(fontForButtons);
+//     btn->setTitleFontSize(24);
 
-  // --- result position
-  resultNode->setAnchorPoint(Vec2(0.5, 0.5));
+//     auto bbcb =  std::bind(&MainMenuScene::processKeyBindingButtonCall, this,
+// (int)0);
+//     backButton->addClickEventListener(bbcb);
 
-  // --- finally
-  return resultNode;
-}
+//     int buttonYPos = resultSize.height - buttonYStep * (buttonIdx + 1);
+//     btn->setPosition(Vec2(buttonXPos, buttonYPos));
+//     resultNode->addChild(btn);
+
+//     buttons[buttonIdx] = btn;
+//   }
+
+//   string tmps;
+
+//   // --- set calbacks for buttons
+
+//   //
+// buttons[0]->addClickEventListener(CC_CALLBACK_1(MainMenuScene::processNewGameRq,
+//   // this));
+//   //
+// buttons[1]->addClickEventListener(CC_CALLBACK_1(MainMenuScene::processOptionsRq,
+//   // this));
+//   //
+// buttons[2]->addClickEventListener(CC_CALLBACK_1(MainMenuScene::processExitRq,
+//   // this));
+
+//   // --- result position
+//   resultNode->setAnchorPoint(Vec2(0.5, 0.5));
+
+//   // --- finally
+//   return resultNode;
+// }
+
+// void MainMenuScene::processKeyBindingButtonCall(const int buttonIdx) {
+//   log("%s:here", __func__);
+// }
 
 // --- -----------------------------------------------------------------------
 
@@ -241,10 +273,11 @@ Node * MainMenuScene::prepareOptionsMenu() {
   // const int checkboxLevel = resultSize.height / 2;
   CheckBox *checkBox = CheckBox::create(chechboxOffFilename, chechboxOnFilename);
   checkBox->setPosition(Vec2(containerFoWSize.width / 5, containerFoWSize.height / 2));
+  checkBox->setSelectedState(GameSettings::getInstance()->getNeedsFogOfWar());
   containerFoW->addChild(checkBox);
 
-  const string textFoW = "Fog of war (TBD)";
-  Label *labelFoW      = Label::createWithTTF(textFoW, fontForButtons, 24);
+  const char *const textFoW = "Fog of war (TBD)";
+  Label *labelFoW           = Label::createWithTTF(textFoW, fontForButtons, 24);
 
   if (labelFoW == nullptr)  {
     labelFoW = Label::create();
@@ -295,12 +328,14 @@ void MainMenuScene::processBackButtonCall(const BackButtonTarget backButtonTarge
   BackButtonTarget newBBT = BBT_NONE;
 
   switch (backButtonTarget) {
-  case BBT_BASIC:
+  case BBT_BASIC: // From "Options" to "Main"
     newMenu = prepareBasicMenu();
     newBBT  = BBT_NONE;
+
+    GameSettings::getInstance()->saveSettings();
     break;
 
-  case BBT_OPTIONS:
+  case BBT_OPTIONS: // From "Key bindings" to "Options"
     newMenu = prepareOptionsMenu();
     newBBT  = BBT_BASIC;
     break;
@@ -320,6 +355,8 @@ void MainMenuScene::processBackButtonCall(const BackButtonTarget backButtonTarge
 
 void MainMenuScene::processExitRq(Ref *pSender) {
   log("%s: here", __func__);
+  GameSettings::getInstance()->saveSettings();
+
   Director::getInstance()->end();
 }
 
@@ -337,7 +374,7 @@ void MainMenuScene::processNewGameRq(Ref *pSender) {
 void MainMenuScene::processKeyBindingsRq(Ref *pSender) {
   log("%s: here", __func__);
 
-  Node *const kbMenu = prepareKeyBindingsMenu();
+  Node *const kbMenu = KeyBindingsMenuNode::create(); // prepareKeyBindingsMenu();
   kbMenu->setPosition(positionBeforeIn);
   addChild(kbMenu);
 
@@ -365,7 +402,7 @@ void MainMenuScene::switchStates(Node *const            newMenu,
   // --- init moving actions
   MoveBy   *moveOut = MoveTo::create(switchDelayHalf, positionMovedOut);
   Sequence *seqOut  = Sequence::create(moveOut, RemoveSelf::create(), nullptr);
-  currentMenu->runAction(moveOut);
+  currentMenu->runAction(seqOut);
   currentMenu = newMenu;
 
   MoveTo   *moveIn = MoveTo::create(switchDelayHalf, positionActive);

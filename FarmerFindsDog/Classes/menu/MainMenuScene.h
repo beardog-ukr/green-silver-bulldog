@@ -50,6 +50,7 @@ protected:
   void processExitRq(cocos2d::Ref *pSender);
 
   void processKeyBindingsRq(Ref *pSender);
+  void processKeyBindingButtonCall(const int buttonIdx);
 
   void onKeyPressedScene(cocos2d::EventKeyboard::KeyCode keyCode,
                          cocos2d::Event                 *event);

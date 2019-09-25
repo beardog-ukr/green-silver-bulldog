@@ -75,18 +75,13 @@ protected:
   MoveDirection generateNextDogMoveOnRandom();
   MoveDirection generateNextDogMoveOnRotates();
 
-
   //
-  void readConfig();
+  void          processFarmerCall();
+  void          processGoHomeRequest();
 
+  void          onKeyPressedScene(EventKeyboard::KeyCode keyCode,
+                                  Event                 *event);
+  void          doHardcodedKeyProcessing(const EventKeyboard::KeyCode keyCode);
 
-  //
-  void processFarmerCall();
-  void processGoHomeRequest();
-
-  void onKeyPressedScene(EventKeyboard::KeyCode keyCode,
-                         Event                 *event);
-  void doHardcodedKeyProcessing(const EventKeyboard::KeyCode keyCode);
-
-  void processFarmerMovementFinish();
+  void          processFarmerMovementFinish();
 };

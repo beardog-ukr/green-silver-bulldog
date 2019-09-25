@@ -13,7 +13,7 @@ enum RequiredAction {
   RA_FOLLOW,
   RA_GO_HOME,
 
-  RA_TOTAL_AMOUNT = 7, // don't forget to change this valye if new RA_* item is
+  RA_TOTAL_AMOUNT = 7, // don't forget to change this value if new RA_* item is
                        // added
 
   RA_UNDEFINED = 200
@@ -26,8 +26,18 @@ public:
 
 
   RequiredAction       getActionForKeyCode(const cocos2d::EventKeyboard::KeyCode keyCode) const;
+  void                 setKeyCodeForAction(const cocos2d::EventKeyboard::KeyCode keyCode,
+                                           const RequiredAction                  action);
 
-  // bool needsFogOfWar();
+
+  bool getNeedsFogOfWar();
+
+
+  bool saveSettings();
+
+
+  cocos2d::EventKeyboard::KeyCode
+  getKeyCodeForAction(const RequiredAction requiredAction) const;
 
 private:
 
@@ -42,9 +52,11 @@ private:
   cocos2d::EventKeyboard::KeyCode keyCodes[RA_TOTAL_AMOUNT];
   RequiredAction requiredActions[RA_TOTAL_AMOUNT];
 
-  int gameScore = 1; // TODO: remove this line
+  bool needsFogOfWar;
 
-  // void performDefaultKeyboardSettings();
-  // void performDefaultOtherSettings();
-  // bool loadSettingsFromFile(const std::string& filename);
+  void      applyDefaultKeyboardSettings();
+  void      applyDefaultOtherSettings();
+  bool      loadSettingsFromFile();
 };
+
+std::string keyCodeToString(const cocos2d::EventKeyboard::KeyCode keyCode);

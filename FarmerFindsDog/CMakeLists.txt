@@ -59,6 +59,7 @@ list(APPEND GAME_SOURCE
      Classes/game/TiledMapLoader.cpp
      Classes/menu/MainMenuScene.cpp
      Classes/menu/InstantMenuScene.cpp
+     Classes/menu/KeyBindingsMenuNode.cpp
      Classes/menu/TiledBackgroundNode.cpp
      )
 list(APPEND GAME_HEADER
@@ -75,6 +76,7 @@ list(APPEND GAME_HEADER
      Classes/game/TiledMapLoader.h
      Classes/menu/MainMenuScene.h
      Classes/menu/InstantMenuScene.h
+     Classes/menu/KeyBindingsMenuNode.h
      Classes/menu/TiledBackgroundNode.h
      )
 

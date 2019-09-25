@@ -1,8 +1,5 @@
 #include "MainGameScene.h"
 
-#include "json/document-wrapper.h"
-
-
 #include "DogKeeper.h"
 #include "FarmerKeeper.h"
 #include "TiledMapKeeper.h"
@@ -37,8 +34,6 @@ bool MainGameScene::init()
   needsImmediateExit = false;
   TiledMapLoader *mapLoader = nullptr;
   bool result               = true;
-
-  readConfig();
 
   // --- init
   do {
@@ -536,36 +531,6 @@ void MainGameScene::processFarmerMovementFinish() {
 
 void MainGameScene::setImmediateExit(const bool performExit) {
   needsImmediateExit = performExit;
-}
-
-// --- -----------------------------------------------------------------------
-
-void MainGameScene::readConfig() {
-  log("%s: here", __func__);
-  const string fn("fff.txt");
-
-  auto fileUtils = FileUtils::getInstance();
-
-
-  log("%s: will search for files in:", __func__);
-
-  for (string s: fileUtils->getSearchPaths()) {
-    log("%s:  ---> %s", __func__, s.c_str());
-  }
-  log("%s: done listing pathes", __func__);
-
-  string fnfp = fileUtils->fullPathForFilename(fn);
-
-  if (!fileUtils->isFileExist(fn)) {
-    log("%s: file does not exist (%s)", __func__, fnfp.c_str());
-    return;
-  }
-
-  string fnContent = fileUtils->getStringFromFile(fnfp);
-  log("%s: received content:\n %s \n", __func__, fnContent.c_str());
-
-  rapidjson::Document jsonReader;
-  jsonReader.Parse(fnContent.c_str());
 }
 
 // --- -----------------------------------------------------------------------
